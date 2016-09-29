@@ -85,8 +85,9 @@ data TwoIntegers = Two Integer Integer
 instance Eq TwoIntegers where
         (==) (Two a b) (Two x y) = a == b && x == y
 
-data StringOrInt = TisAnInt Int
-                 | TisAString String
+data StringOrInt
+    = TisAnInt Int
+    | TisAString String
 
 instance Eq StringOrInt where
         (==) (TisAnInt a) (TisAnInt b) = a == b
@@ -103,23 +104,27 @@ data Tuple a b = Tuple a b
 instance (Eq a, Eq b) => Eq (Tuple a b) where
         (==) (Tuple a b) (Tuple a' b') = a == a' && b == b'
 
-data Which a = ThisOne a
-             | ThatOne a
+data Which a
+    = ThisOne a
+    | ThatOne a
 
 instance Eq a => Eq (Which a) where
         (==) (ThisOne a) (ThisOne b) = a == b
         (==) (ThatOne a) (ThatOne b) = a == b
         (==) _ _ = False
 
-data EitherOr a b = Hello a
-                  | GoodBye b
+data EitherOr a b
+    = Hello a
+    | GoodBye b
 
 instance (Eq a, Eq b) => Eq (EitherOr a b) where
         (==) (Hello a) (Hello b) = a == b
         (==) (GoodBye a) (GoodBye b) = a == b
         (==) _ _ = False
 
-data NewThing a = One a | Other a a
+data NewThing a
+    = One a
+    | Other a a
     deriving (Show)
 
 instance Functor NewThing where
@@ -131,8 +136,9 @@ data Person = Person Bool deriving (Show)
 printPerson :: Person -> IO ()
 printPerson = print
 
-data Mood = Blah
-          | Woot deriving (Show, Eq)
+data Mood
+    = Blah
+    | Woot deriving (Show, Eq)
 
 settleDown :: Mood -> Mood
 settleDown x = if x == Woot
@@ -178,12 +184,13 @@ bindExp x = let
 addOneIfOdd n = if odd n then f n else n
                 where f = (+ 1)
 
-data WherePenguinsLive = Galapagos
-                       | Antarctica
-                       | Australia
-                       | SouthAfrica
-                       | SouthAmerica
-                       deriving (Eq, Show)
+data WherePenguinsLive
+    = Galapagos
+    | Antarctica
+    | Australia
+    | SouthAfrica
+    | SouthAmerica
+    deriving (Eq, Show)
 
 data Penguin = Peng WherePenguinsLive
         deriving (Eq, Show)
