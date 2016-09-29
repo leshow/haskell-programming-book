@@ -2,6 +2,7 @@
 
 module Lib where
 
+import           Control.Applicative
 import           Control.Concurrent
 import           Control.Monad
 import           Data.Char
@@ -342,7 +343,7 @@ squishAgain = squishMap id
 
 myMaximumBy :: (a -> a -> Ordering) -> [a] -> a
 myMaximumBy _ [x] = x
-myMaximumBy f (x:y:[]) = gtr f x y -- ghc wants me to use [x, y]
+myMaximumBy f (x:y:[]) = gtr f x y              -- ghc wants me to use [x, y]
 myMaximumBy f (x:ys) = gtr f x (myMaximumBy f ys)
 
 gtr :: (a -> a -> Ordering) -> a -> a -> a
@@ -366,8 +367,39 @@ myMinFold f (x:xs) = foldr cmp x xs
     where
         cmp a b = if f a b == LT then a else b
 
-myMaximum :: (Ord a) => [a] -> a
+myMaximum :: Ord a => [a] -> a
 myMaximum = myMaxFold compare
 
-myMinimum :: (Ord a) => [a] -> a
+myMinimum :: Ord a => [a] -> a
 myMinimum = myMinFold compare
+
+
+fibs = 1 : scanl (+) 1 fibs
+
+fibsN x = fibs !! x
+
+fibs20 = take 20 fibs
+fibsLT = takeWhile (<100) fibs
+
+factorial 0 = 1
+factorial n = n * factorial (n-1)
+
+fact = drop 2 $ 1 : scanl (*) 1 [1..] -- i dont know how to write it without drop 2
+
+stops = "pbtdkg"
+vowels = "aeiou"
+
+mkTup :: [(Char, Char, Char)]
+mkTup = [(a,b,c) | a <- stops, b <- vowels, c <- stops ]
+
+-- do
+--     a <- stops
+--     b <- vowels
+--     c <- stops
+--     return (a,b,c)
+-- λ> :t liftA3
+-- liftA3
+--   :: Applicative f => (a -> b -> c -> d) -> f a -> f b -> f c -> f d
+-- λ> :t (,,)
+-- (,,) :: a -> b -> c -> (a, b, c)
+mkTup2 = liftA3 (,,) stops vowels stops
