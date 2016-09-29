@@ -315,7 +315,7 @@ myAny f = foldr (\x y -> f x || y) False
 -- (||) . f
 
 myElem :: Eq a => a -> [a] -> Bool
-myElem el = any ((==) el)
+myElem el = any (el ==)
 
 -- with recursion
 -- myRElem :: Eq a => a -> [a] -> Bool
@@ -336,7 +336,7 @@ squish :: [[a]] -> [a]
 squish = foldr (++) []
 
 squishMap :: (a -> [b]) -> [a] -> [b]
-squishMap f = foldr (\x acc -> f x ++ acc) []
+squishMap f = foldr (\x xs -> f x ++ xs) []
 
 squishAgain :: [[a]] -> [a]
 squishAgain = squishMap id
@@ -373,8 +373,13 @@ myMaximum = myMaxFold compare
 myMinimum :: Ord a => [a] -> a
 myMinimum = myMinFold compare
 
+fib 0 = 1
+fib 1 = 1
+fib n = fib (n-1) + fib (n-2)
 
 fibs = 1 : scanl (+) 1 fibs
+
+fibszip = 1 : 1 : zipWith (+) fibszip (tail fibszip)
 
 fibsN x = fibs !! x
 
@@ -389,8 +394,21 @@ fact = drop 2 $ 1 : scanl (*) 1 [1..] -- i dont know how to write it without dro
 stops = "pbtdkg"
 vowels = "aeiou"
 
-mkTup :: [(Char, Char, Char)]
-mkTup = [(a,b,c) | a <- stops, b <- vowels, c <- stops ]
+mkTup :: [a] -> [b] -> [c] -> [(a, b, c)]
+mkTup x y z = [(a,b,c) | a <- x, b <- y, c <- z]
+
+svs = mkTup stops vowels stops
+
+fstt (a,b,c) = a
+
+withP = filter ((==) 'p' . fstt) svs
+
+withPTup = [(a,b,c) | a <- stops, b <- vowels, c <- stops, a == 'p']
+
+nouns = ["computer", "desk", "sky", "Haskell"]
+verbs = ["type", "smack", "snort", "run"]
+
+sentences = mkTup nouns verbs nouns
 
 -- do
 --     a <- stops
@@ -403,3 +421,17 @@ mkTup = [(a,b,c) | a <- stops, b <- vowels, c <- stops ]
 -- λ> :t (,,)
 -- (,,) :: a -> b -> c -> (a, b, c)
 mkTup2 = liftA3 (,,) stops vowels stops
+
+seekritFunc x =
+    div (sum (map length (words x)))
+        (length (words x))
+
+-- avg word length
+fracSeekrit x = fromIntegral (sum (map length (words x))) / fromIntegral (length (words x))
+
+
+myMap :: (a -> b) -> [a] -> [b]
+myMap f = foldr (\x xs -> f x : xs) []
+
+myFFilter :: (a -> Bool) -> [a] -> [a]
+myFFilter f = foldr (\x xs -> if f x then x : xs else xs) []
