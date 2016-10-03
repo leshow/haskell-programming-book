@@ -24,13 +24,13 @@ eftInt :: Int -> Int -> [Int]
 eftInt = eft
 
 myZip :: [a] -> [b] -> [(a,b)]
-myZip [] _ = []
-myZip _ [] = []
+myZip [] _          = []
+myZip _ []          = []
 myZip (x:xs) (y:ys) = (x,y) : myZip xs ys
 
 myZipWith :: (a -> b -> c) -> [a] -> [b] -> [c]
-myZipWith f [] _ = []
-myZipWith f _ [] = []
+myZipWith f [] _          = []
+myZipWith f _ []          = []
 myZipWith f (x:xs) (y:ys) = f x y : myZipWith f xs ys
 
 newZip = myZipWith (\x y -> (x,y))
@@ -38,11 +38,11 @@ newZip = myZipWith (\x y -> (x,y))
 filterUpper = filter isUpper
 
 capitaliseFirst :: String -> String
-capitaliseFirst [] = []
+capitaliseFirst []     = []
 capitaliseFirst (x:xs) = toUpper x : xs
 
 capitaliseAll :: String -> String
-capitaliseAll [] = []
+capitaliseAll []     = []
 capitaliseAll (x:xs) = toUpper x : capitaliseAll xs
 
 -- ||
@@ -76,7 +76,7 @@ myElem el = any (el ==)
 -- myFElem el = foldr (\x y -> el == x || y) False
 
 myReverse :: [a] -> [a]
-myReverse [] = []
+myReverse []     = []
 myReverse (x:xs) = myReverse xs ++ [x]
 
 -- myReverse = foldl (\x y -> y : x) []
@@ -91,9 +91,9 @@ squishAgain :: [[a]] -> [a]
 squishAgain = squishMap id
 
 myMaximumBy :: (a -> a -> Ordering) -> [a] -> a
-myMaximumBy _ [x] = x
+myMaximumBy _ [x]      = x
 myMaximumBy f (x:y:[]) = gtr f x y              -- ghc wants me to use [x, y]
-myMaximumBy f (x:ys) = gtr f x (myMaximumBy f ys)
+myMaximumBy f (x:ys)   = gtr f x (myMaximumBy f ys)
 
 gtr :: (a -> a -> Ordering) -> a -> a -> a
 gtr f a b = if f a b == GT then a else b
@@ -102,8 +102,8 @@ lt :: (a -> a -> Ordering) -> a -> a -> a
 lt f a b = if f a b == LT then a else b
 
 myMinimumBy :: (a -> a -> Ordering) -> [a] -> a
-myMinimumBy _ [x] = x
-myMinimumBy f [x,y] = lt f x y
+myMinimumBy _ [x]    = x
+myMinimumBy f [x,y]  = lt f x y
 myMinimumBy f (x:ys) = lt f x (myMinimumBy f ys)
 
 myMaxFold :: (a -> a -> Ordering) -> [a] -> a

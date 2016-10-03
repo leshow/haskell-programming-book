@@ -90,9 +90,9 @@ data StringOrInt
     | TisAString String
 
 instance Eq StringOrInt where
-        (==) (TisAnInt a) (TisAnInt b) = a == b
+        (==) (TisAnInt a) (TisAnInt b)     = a == b
         (==) (TisAString a) (TisAString b) = a == b
-        (==) _ _ = False
+        (==) _ _                           = False
 
 data Pair a = Pair a a
 
@@ -111,16 +111,16 @@ data Which a
 instance Eq a => Eq (Which a) where
         (==) (ThisOne a) (ThisOne b) = a == b
         (==) (ThatOne a) (ThatOne b) = a == b
-        (==) _ _ = False
+        (==) _ _                     = False
 
 data EitherOr a b
     = Hello a
     | GoodBye b
 
 instance (Eq a, Eq b) => Eq (EitherOr a b) where
-        (==) (Hello a) (Hello b) = a == b
+        (==) (Hello a) (Hello b)     = a == b
         (==) (GoodBye a) (GoodBye b) = a == b
-        (==) _ _ = False
+        (==) _ _                     = False
 
 data NewThing a
     = One a
@@ -128,7 +128,7 @@ data NewThing a
     deriving (Show)
 
 instance Functor NewThing where
-    fmap f (One a) = One (f a)
+    fmap f (One a)     = One (f a)
     fmap f (Other a b) = Other (f a) (f b)
 
 data Person = Person Bool deriving (Show)
@@ -197,7 +197,7 @@ data Penguin = Peng WherePenguinsLive
 
 isSouthAfrica :: WherePenguinsLive -> Bool
 isSouthAfrica SouthAfrica = True
-isSouthAfrica _ = False
+isSouthAfrica _           = False
 
 penguinLocation :: Penguin -> WherePenguinsLive
 penguinLocation (Peng location) = location
@@ -210,7 +210,7 @@ galapagos = Peng Galapagos
 
 galapagosPenguin :: Penguin -> Bool
 galapagosPenguin (Peng Galapagos) = True
-galapagosPenguin _ = False
+galapagosPenguin _                = False
 
 
 k :: (a, b) -> a

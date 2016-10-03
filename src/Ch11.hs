@@ -72,11 +72,11 @@ doge = Plane PapuAir
 
 isCar :: Vehicle -> Bool
 isCar (Car _ _) = True
-isCar _ = False
+isCar _         = False
 
 isPlane :: Vehicle -> Bool
 isPlane (Plane _ _) = True
-isPlane _ = False
+isPlane _           = False
 
 areCars :: [Vehicle] -> [Bool]
 areCars = map isCar
@@ -88,4 +88,23 @@ getManu (Car man _) =  man
 -- it should return
 getManuMaybe :: Vehicle -> Maybe Manufacturer
 getManuMaybe (Car man _) = Just man
-getManuMaybe _ = Nothing
+getManuMaybe _           = Nothing
+
+
+
+data BinaryTree a =
+    Leaf
+    | Node (BinaryTree a) a (BinaryTree a)
+    deriving (Eq, Ord, Show)
+
+insert' :: Ord a => a -> BinaryTree a -> BinaryTree a
+insert' b Leaf = Node Leaf b Leaf
+insert' b (Node left a right)
+    | b == a = Node left a right
+    | b < a = Node (insert' b left) a right
+    | b > a = Node left a (insert' b right)
+
+foldTree :: (a -> b -> b) -> b -> BinaryTree a -> b
+foldTree _ b Leaf               = b
+foldTree f b (Node Leaf a Leaf) = f a b
+foldTree f b (Node l a r)       = foldTree f (f a (foldTree f b l)) r
