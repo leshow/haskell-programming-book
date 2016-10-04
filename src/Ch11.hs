@@ -1,6 +1,6 @@
 module Ch11 where
 
-
+import           Data.Char
 {- Kinds:
     we know something is a fully applied concrete type when it has a kind signature *
     when it is * -> * or otherwise, it is like a function and waiting to be applied
@@ -108,3 +108,59 @@ foldTree :: (a -> b -> b) -> b -> BinaryTree a -> b
 foldTree _ b Leaf               = b
 foldTree f b (Node Leaf a Leaf) = f a b
 foldTree f b (Node l a r)       = foldTree f (f a (foldTree f b l)) r
+
+isSubsequenceOf :: Eq a => [a] -> [a] -> Bool
+isSubsequenceOf [] _          = True
+isSubsequenceOf (x:xs) search = elem x search && isSubsequenceOf xs search
+
+capitalizeWords :: String -> [(String, String)]
+capitalizeWords sentence = map capWord $ words sentence
+    where
+        capWord word@(x:xs) = (word, toUpper x : xs)
+
+type Digit = Char
+-- validButtons = "1234567890*#"
+type Presses = Int
+
+data Button = Button Char String
+    deriving (Show)
+
+data DaPhone = DaPhone [Button]
+
+daphone :: DaPhone
+daphone =
+    DaPhone [
+    Button '1' ""
+    ,Button '2' "ABC"
+    ,Button '3' "DEF"
+    ,Button '4' "GHI"
+    ,Button '5' "JKL"
+    ,Button '6' "MNO"
+    ,Button '7' "PQRS"
+    ,Button '8' "TUV"
+    ,Button '9' "WXYZ"
+    ,Button '*' "^"
+    ,Button '0' "+_"
+    ,Button '#' ".,"
+    ]
+
+convo :: [String]
+convo =
+    [ "Wanna play 20 questions",
+    "Ya",
+    "U 1st haha",
+    "Lol ok. Have u ever tasted alcohol lol",
+    "Lol ya",
+    "Wow ur cool haha. Ur turn",
+    "Ok. Do u think I am pretty Lol",
+    "Lol ya",
+    "Haha thanks just making sure rofl ur turn"
+    ]
+
+-- 'a' -> [('2',1)]
+-- 'A' -> [('*', 1),('2',1)]
+
+-- reverseTaps :: DaPhone -> Char -> [(Digit, Presses)]
+-- reverseTaps (DaPhone (Button b digits)) char =
+--     where
+--         definitions
