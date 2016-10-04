@@ -1,6 +1,7 @@
 module Ch11 where
 
 import           Data.Char
+import           Data.List
 {- Kinds:
     we know something is a fully applied concrete type when it has a kind signature *
     when it is * -> * or otherwise, it is like a function and waiting to be applied
@@ -109,9 +110,9 @@ foldTree _ b Leaf               = b
 foldTree f b (Node Leaf a Leaf) = f a b
 foldTree f b (Node l a r)       = foldTree f (f a (foldTree f b l)) r
 
-isSubsequenceOf :: Eq a => [a] -> [a] -> Bool
-isSubsequenceOf [] _          = True
-isSubsequenceOf (x:xs) search = elem x search && isSubsequenceOf xs search
+isSubsequenceOff :: Eq a => [a] -> [a] -> Bool
+isSubsequenceOff [] _          = True
+isSubsequenceOff (x:xs) search = elem x search && isSubsequenceOff xs search
 
 capitalizeWords :: String -> [(String, String)]
 capitalizeWords sentence = map capWord $ words sentence
@@ -129,19 +130,19 @@ data DaPhone = DaPhone [Button]
 
 daphone :: DaPhone
 daphone =
-    DaPhone [
-    Button '1' ""
-    ,Button '2' "ABC"
-    ,Button '3' "DEF"
-    ,Button '4' "GHI"
-    ,Button '5' "JKL"
-    ,Button '6' "MNO"
-    ,Button '7' "PQRS"
-    ,Button '8' "TUV"
-    ,Button '9' "WXYZ"
-    ,Button '*' "^"
-    ,Button '0' "+_"
-    ,Button '#' ".,"
+    DaPhone
+    [Button '1' ""
+    , Button '2' "ABC"
+    , Button '3' "DEF"
+    , Button '4' "GHI"
+    , Button '5' "JKL"
+    , Button '6' "MNO"
+    , Button '7' "PQRS"
+    , Button '8' "TUV"
+    , Button '9' "WXYZ"
+    , Button '*' "^"
+    , Button '0' "+_"
+    , Button '#' ".,"
     ]
 
 convo :: [String]
@@ -160,7 +161,9 @@ convo =
 -- 'a' -> [('2',1)]
 -- 'A' -> [('*', 1),('2',1)]
 
--- reverseTaps :: DaPhone -> Char -> [(Digit, Presses)]
--- reverseTaps (DaPhone (Button b digits)) char =
---     where
---         definitions
+--reverseTaps :: DaPhone -> Char -> [(Digit, Presses)]
+-- reverseTaps (DaPhone (Button _ [])) char = []
+-- reverseTaps (DaPhone (Button b (x:xs))) char = if x == char then b else reverseTaps (DaPhone (Button b xs))
+        -- isMember = lower `elem` digits
+        -- getPosition = (lower char) `elemIndex` digits
+        -- lower = toLower char
