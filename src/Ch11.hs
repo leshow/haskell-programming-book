@@ -137,7 +137,7 @@ daphone =
     [Button '1' "1", Button '2' "abc2", Button '3' "def3"
     , Button '4' "ghi4", Button '5' "jkl5", Button '6' "mno6"
     , Button '7' "pqrs7", Button '8' "tub8", Button '9' "wxyz9"
-    , Button '*' "^", Button '0' "+_0", Button '#' ".,"]
+    , Button '*' "^", Button '0' "+ 0", Button '#' ".,"]
 
 convo :: [String]
 convo =
@@ -175,6 +175,19 @@ phoneIndex char xs = [i | (x,i) <- zip xs [1..], (==) char x]
 
 fingerTaps :: [(Digit, Presses)] -> Presses
 fingerTaps = foldr (\(_, b) rest -> b + rest) 0
+
+-- get fingertaps for each character
+-- count instances of character in sentences
+-- largest is mostPopular
+
+tapsForChar :: DaPhone -> Char -> Presses
+tapsForChar phone = fingerTaps . reverseTaps phone
+
+countChar :: String -> [(Int, Char)]
+countChar sentence = zipWith (\a b -> (length a, b)) (group sentence) sentence
+
+mostPopularLetter :: DaPhone -> String -> Char
+mostPopularLetter phone sentences = snd . minimum $ map (\(i, c) -> (i*tapsForChar phone c, c)) (countChar sentences)
 
 -- unfinished
 --mostPopularLetter :: String -> Char
