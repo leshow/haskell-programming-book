@@ -152,6 +152,9 @@ convo =
     "Haha thanks just making sure rofl ur turn"
     ]
 
+idx :: Char -> String -> Int
+idx c xs = length $ takeWhile (/= c) xs
+
 -- 'a' -> [('2',1)]
 -- 'A' -> [('*', 1),('2',1)]
 
@@ -166,9 +169,6 @@ cellPhonesDead :: DaPhone -> String -> [(Digit, Presses)]
 cellPhonesDead _ []         = []
 cellPhonesDead phone (x:xs) = reverseTaps phone x ++ cellPhonesDead phone xs
 
-idx :: Char -> String -> Int
-idx c xs = length $ takeWhile (/= c) xs
-
 -- this is similar to elemIndex from Data.List
 phoneIndex :: Char -> String -> [Int]
 phoneIndex char xs = [i | (x,i) <- zip xs [1..], (==) char x]
@@ -176,23 +176,27 @@ phoneIndex char xs = [i | (x,i) <- zip xs [1..], (==) char x]
 fingerTaps :: [(Digit, Presses)] -> Presses
 fingerTaps = foldr (\(_, b) rest -> b + rest) 0
 
--- get fingertaps for each character
--- count instances of character in sentences
--- largest is mostPopular
-
 tapsForChar :: DaPhone -> Char -> Presses
 tapsForChar phone = fingerTaps . reverseTaps phone
 
 countChar :: String -> [(Int, Char)]
 countChar sentence = zipWith (\a b -> (length a, b)) (group sentence) sentence
 
-mostPopularLetter :: DaPhone -> String -> Char
-mostPopularLetter phone sentences = snd . maximum $ map (\(i, c) -> (i*tapsForChar phone c, c)) (countChar sentences)
+-- book says most popular letter but describes finding the most costly letter to type
+-- i solved most costly letter as it's a more interesting problem
+mostPopularLetter :: String -> Char
+mostPopularLetter sentence = snd . maximum $ map (\(i, c) -> (i*tapsForChar daphone c, c)) (countChar sentence)
 
--- unfinished
---mostPopularLetter :: String -> Char
---mostPopularLetter str =
+-- again, this is the most costly letter to type out of the whole convo
+coolestLtr :: [String] -> Char
+coolestLtr sentList = mostPopularLetter $ concat sentList
 
+-- ill find the word with the most occurences
+coolestWord :: [String] -> String
+coolestWord sentList = head . snd . maximum . map (\a -> (length a, a)) . group . words $ concatMap (\a -> " " ++ a) sentList
+
+
+longestWord = snd . maximum . sort . map (\a -> (length a, a)) . words $ concatMap (\a -> " " ++ a) convo
 -- I've done the below so many times I can do it blindfolded, what's more interesting to me is
 -- extending DSLs with GADTs for more expressiveness
 data Expr
