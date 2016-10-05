@@ -187,7 +187,7 @@ countChar :: String -> [(Int, Char)]
 countChar sentence = zipWith (\a b -> (length a, b)) (group sentence) sentence
 
 mostPopularLetter :: DaPhone -> String -> Char
-mostPopularLetter phone sentences = snd . minimum $ map (\(i, c) -> (i*tapsForChar phone c, c)) (countChar sentences)
+mostPopularLetter phone sentences = snd . maximum $ map (\(i, c) -> (i*tapsForChar phone c, c)) (countChar sentences)
 
 -- unfinished
 --mostPopularLetter :: String -> Char
