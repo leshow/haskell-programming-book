@@ -1,3 +1,5 @@
+{-# LANGUAGE GADTs #-}
+
 module Ch11 where
 
 import           Data.Char
@@ -127,27 +129,19 @@ data Button = Button Char String
     deriving (Show)
 
 data DaPhone = DaPhone [Button]
+    deriving (Show)
 
 daphone :: DaPhone
 daphone =
     DaPhone
-    [Button '1' ""
-    , Button '2' "ABC"
-    , Button '3' "DEF"
-    , Button '4' "GHI"
-    , Button '5' "JKL"
-    , Button '6' "MNO"
-    , Button '7' "PQRS"
-    , Button '8' "TUV"
-    , Button '9' "WXYZ"
-    , Button '*' "^"
-    , Button '0' "+_"
-    , Button '#' ".,"
-    ]
+    [Button '1' "1", Button '2' "abc2", Button '3' "def3"
+    , Button '4' "ghi4", Button '5' "jkl5", Button '6' "mno6"
+    , Button '7' "pqrs7", Button '8' "tub8", Button '9' "wxyz9"
+    , Button '*' "^", Button '0' "+_0", Button '#' ".,"]
 
 convo :: [String]
 convo =
-    [ "Wanna play 20 questions",
+    ["Wanna play 20 questions",
     "Ya",
     "U 1st haha",
     "Lol ok. Have u ever tasted alcohol lol",
@@ -161,9 +155,61 @@ convo =
 -- 'a' -> [('2',1)]
 -- 'A' -> [('*', 1),('2',1)]
 
---reverseTaps :: DaPhone -> Char -> [(Digit, Presses)]
--- reverseTaps (DaPhone (Button _ [])) char = []
--- reverseTaps (DaPhone (Button b (x:xs))) char = if x == char then b else reverseTaps (DaPhone (Button b xs))
-        -- isMember = lower `elem` digits
-        -- getPosition = (lower char) `elemIndex` digits
-        -- lower = toLower char
+reverseTaps :: DaPhone -> Char -> [(Digit, Presses)]
+reverseTaps (DaPhone []) _ = []
+reverseTaps (DaPhone ((Button b ls) : xs)) char
+    | char `elem` ls            = [(b, 1 + idx char ls)]
+    | toLower char `elem` ls    = [('*',1), (b, 1 + idx (toLower char) ls)]
+    | otherwise                 = reverseTaps (DaPhone xs) char
+
+cellPhonesDead :: DaPhone -> String -> [(Digit, Presses)]
+cellPhonesDead _ []         = []
+cellPhonesDead phone (x:xs) = reverseTaps phone x ++ cellPhonesDead phone xs
+
+idx :: Char -> String -> Int
+idx c xs = length $ takeWhile (/= c) xs
+
+-- this is similar to elemIndex from Data.List
+phoneIndex :: Char -> String -> [Int]
+phoneIndex char xs = [i | (x,i) <- zip xs [1..], (==) char x]
+
+fingerTaps :: [(Digit, Presses)] -> Presses
+fingerTaps = foldr (\(_, b) rest -> b + rest) 0
+
+-- unfinished
+--mostPopularLetter :: String -> Char
+--mostPopularLetter str =
+
+-- I've done the below so many times I can do it blindfolded, what's more interesting to me is
+-- extending DSLs with GADTs for more expressiveness
+data Expr
+    = I Integer
+    | Add Expr Expr
+    | Sub Expr Expr
+    | Mul Expr Expr
+
+eval :: Expr -> Integer
+eval (I i)         = i
+eval (Add ex1 ex2) = eval ex1 + eval ex2
+eval (Sub ex1 ex2) = eval ex1 - eval ex2
+eval (Mul ex1 ex2) = eval ex1 * eval ex2
+
+printExpr :: Expr -> String
+printExpr (I i)         = show i
+printExpr (Add ex1 ex2) = printExpr ex1 ++ " + " ++ printExpr ex2
+printExpr (Sub ex1 ex2) = printExpr ex1 ++ " - " ++ printExpr ex2
+printExpr (Mul ex1 ex2) = printExpr ex1 ++ " * " ++ printExpr ex2
+
+-- a datatype is how we declare and create data for our functions to receive as inputs
+-- datatype is made of a type constructor[1] and zero or more data constructors[2] which have
+-- zero or more arguments[3]
+-- data TypeConstructor = DataConstructor Int
+--          [1]             [2]             [3]
+
+-- just messing around
+data Exp a where
+    I' :: Int -> Exp Int
+    B :: Bool -> Exp Bool
+    Add' :: Exp Int -> Exp Int -> Exp Int
+    Sub' :: Exp Int -> Exp Int -> Exp Int
+    Eq :: Exp Bool -> Exp Bool -> Exp Bool
