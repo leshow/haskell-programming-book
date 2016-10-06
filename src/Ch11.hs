@@ -195,8 +195,9 @@ coolestLtr sentList = mostPopularLetter $ concat sentList
 coolestWord :: [String] -> String
 coolestWord sentList = head . snd . maximum . map (\a -> (length a, a)) . group . words $ concatMap (\a -> " " ++ a) sentList
 
+longestWord :: (Int, String)
+longestWord = maximum . sort . map (\a -> (length a, a)) . words $ concatMap (\a -> " " ++ a) convo
 
-longestWord = snd . maximum . sort . map (\a -> (length a, a)) . words $ concatMap (\a -> " " ++ a) convo
 -- I've done the below so many times I can do it blindfolded, what's more interesting to me is
 -- extending DSLs with GADTs for more expressiveness
 data Expr
