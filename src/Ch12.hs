@@ -169,5 +169,11 @@ either' f _ (Left a)  = f a
 either' _ g (Right b) = g b
 
 eitherMaybe' :: (b -> c) -> Either a b -> Maybe c
-eitherMaybe' _ (Left _) = Nothing
+eitherMaybe' _ (Left _)  = Nothing
 eitherMaybe' f (Right b) = Just $ f b
+
+-- an unfold is an anamorphism, a fold is a catamorphism
+
+-- iterate :: (a -> a) -> a -> [a]
+-- take 5 $ iterate (+1) 0
+-- [0,1,2,3,4]
