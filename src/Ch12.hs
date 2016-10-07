@@ -110,3 +110,64 @@ mayybee _ f (Just a) = f a
 fromMaybe :: a -> Maybe a -> a
 fromMaybe a Nothing  = a
 fromMaybe _ (Just a) = a
+
+listToMaybe :: [a] -> Maybe a
+listToMaybe [a]    = Just a
+listToMaybe (x:xs) = Just x
+listToMaybe []     = Nothing
+
+maybeToList :: Maybe a -> [a]
+maybeToList (Just a) = [a]
+maybeToList Nothing  = []
+
+catMaybes :: [Maybe a] -> [a]
+catMaybes []           = []
+catMaybes (Nothing:xs) = [] ++ catMaybes xs
+catMaybes (Just a:xs)  = a : catMaybes xs
+
+catMaybes' :: [Maybe a] -> [a]
+catMaybes' = foldr ifJust []
+    where
+        ifJust x b = case x of
+            Just a  -> a : b
+            Nothing -> b
+
+flipMaybe :: [Maybe a] -> Maybe [a]
+flipMaybe = foldr allJust (Just [])
+    where
+        allJust Nothing _         = Nothing
+        allJust _ Nothing         = Nothing
+        allJust (Just a) (Just b) = Just $ a : b
+
+flipMaybe' :: [Maybe a] -> Maybe [a]
+flipMaybe' xs = case filter isNothing xs of
+    [] -> Just $ catMaybes xs
+    _  -> Nothing
+
+-- Either library
+
+
+lefts' :: [Either a b] -> [a]
+lefts' = foldr isLeft []
+    where
+        isLeft x xs = case x of
+            Left a  -> a : xs
+            Right b -> xs
+
+rights' :: [Either a b] -> [b]
+rights' = foldr isRight []
+    where
+        isRight x xs = case x of
+            Left a  -> xs
+            Right b -> b : xs
+
+partitionEithers' :: [Either a b] -> ([a],[b])
+partitionEithers' xs = (lefts' xs, rights' xs)
+
+either' :: (a -> c) -> (b -> c) -> Either a b -> c
+either' f _ (Left a)  = f a
+either' _ g (Right b) = g b
+
+eitherMaybe' :: (b -> c) -> Either a b -> Maybe c
+eitherMaybe' _ (Left _) = Nothing
+eitherMaybe' f (Right b) = Just $ f b
