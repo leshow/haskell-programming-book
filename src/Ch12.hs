@@ -19,3 +19,38 @@ makeJust = fmap Just [1, 2, 3]
     2. :k of a and f in r :: a -> f a
     a :: * , f :: * -> *
 -}
+
+data Nat
+    = Zero
+    | Succ Nat
+    deriving (Eq, Show)
+
+natToInteger :: Nat -> Integer
+natToInteger Zero       = 0
+natToInteger (Succ nat) = 1 + natToInteger nat
+
+integerToNat :: Integer -> Maybe Nat
+integerToNat n
+    | n < 0 = Nothing
+    | n >= 0 = Just $ succit n
+    where
+        succit :: Integer -> Nat
+        succit 0 = Zero
+        succit n = Succ $ succit (n-1)
+
+
+isJust :: Maybe a -> Bool
+isJust (Just _) = True
+isJust Nothing  = False
+
+isNothing :: Maybe a -> Bool
+isNothing (Just _) = False
+isNothing Nothing  = True
+
+mayybee :: b -> (a -> b) -> Maybe a -> b
+mayybee b _ Nothing  = b
+mayybee _ f (Just a) = f a
+
+fromMaybe :: a -> Maybe a -> a
+fromMaybe a Nothing  = a
+fromMaybe _ (Just a) = a
