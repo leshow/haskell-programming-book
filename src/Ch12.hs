@@ -181,3 +181,11 @@ eitherMaybe' f (Right b) = Just $ f b
 -- unfoldr :: (b -> Maybe (a,b)) -> b -> [a]
 -- take 10 $ unfoldr (\b -> Just (b, b+1)) 0
 -- [0,1,2,3,4,5,6,7,8,9]
+
+myIterate :: (a -> a) -> a -> [a]
+myIterate f a = a : myIterate f (f a)
+
+-- myUnfoldr :: (b -> Maybe (a, b)) -> b -> [a]
+-- myUnfoldr f b = case f b of
+--     Just (a, bb) -> a
+--     Nothing -> bb
