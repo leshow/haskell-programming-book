@@ -185,7 +185,7 @@ eitherMaybe' f (Right b) = Just $ f b
 myIterate :: (a -> a) -> a -> [a]
 myIterate f a = a : myIterate f (f a)
 
--- myUnfoldr :: (b -> Maybe (a, b)) -> b -> [a]
--- myUnfoldr f b = case f b of
---     Just (a, bb) -> a
---     Nothing -> bb
+myUnfoldr :: (b -> Maybe (a, b)) -> b -> [a]
+myUnfoldr f b = case f b of
+    Just (a, bb) -> a : myUnfoldr f bb
+    Nothing      -> []
