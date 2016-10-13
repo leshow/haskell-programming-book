@@ -1,6 +1,7 @@
 {-# LANGUAGE FlexibleInstances          #-}
 {-# LANGUAGE GADTs                      #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE LambdaCase                 #-}
 
 module Lib where
 
@@ -38,7 +39,7 @@ filterDbDate = foldr consDate []
 --         getDate (DbDate t) = t
 
 selectDbDate :: DatabaseItem -> Bool
-selectDbDate item = case item of
+selectDbDate = \case
     (DbDate t) -> True
     _          -> False
 
