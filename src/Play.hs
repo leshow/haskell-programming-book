@@ -27,7 +27,7 @@ instance Elevator Lift where
         GT -> Left "At max capacity"
 
 doRun = do
-    let el = Lift { current=0,backlog=[],people=2, maxOccupancy=10 }
+    let el = Lift { current=0, backlog=[], people=2, maxOccupancy=10 }
     el <- moveTo el 2
     el <- addPassenger el 3
     el <- moveTo el 4
