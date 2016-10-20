@@ -1,6 +1,9 @@
 {-# LANGUAGE RecordWildCards #-}
 
 module Play where
+
+import qualified Data.Map.Lazy as M
+
 -- just messing around
 type Floor = Int
 class Elevator a where
@@ -32,3 +35,23 @@ doRun = do
     el <- addPassenger el 3
     el <- moveTo el 4
     addPassenger el 3
+
+
+getMax :: [Integer] -> Integer
+getMax = foldr max 0
+
+getMax' :: [Integer] -> Integer
+getMax' []     = 0
+getMax' (x:xs) = max x (getMax xs)
+
+
+data Trie a = Trie
+    { value    :: Maybe a
+    , children :: M.Map Char (Trie a)
+    }
+
+findInTrie :: String -> Trie a -> Maybe a
+findInTrie [] a = value a
+findInTrie (x:xs) a = do
+    val <- M.lookup x (children a)
+    findInTrie xs a
