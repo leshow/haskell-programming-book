@@ -1,8 +1,8 @@
-name:                haskell-programming-book
+name:                haskell-programming
 version:             0.1.0.0
-synopsis:            Initial project template from stack
+synopsis:            Working through Haskell First Principles book exercises
 description:         Please see README.md
-homepage:            https://github.com/leshow/haskell-programming-book#readme
+homepage:            https://github.com/leshow/haskellbook#readme
 license:             BSD3
 license-file:        LICENSE
 author:              Evan Cameron
@@ -21,23 +21,23 @@ library
                      , time
   default-language:    Haskell2010
 
-executable haskell-programming-book-exe
+executable haskell-programming
   hs-source-dirs:      app
   main-is:             Main.hs
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   build-depends:       base
-                     , haskell-programming-book
+                     , haskell-programming
   default-language:    Haskell2010
 
-test-suite haskell-programming-book-test
+test-suite haskell-programming-test
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
   main-is:             Spec.hs
   build-depends:       base
-                     , haskell-programming-book
+                     , haskell-programming
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   default-language:    Haskell2010
 
 source-repository head
   type:     git
-  location: https://github.com/leshow/haskell-programming-book
+  location: https://github.com/leshow/haskellbook
