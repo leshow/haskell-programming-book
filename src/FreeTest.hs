@@ -45,9 +45,17 @@ runTeletype =
         case op of
             GetLine f     -> getLine >>= f
             PrintLine s f -> putStrLn s >> f
+-- these 2 run functions are equivalent
+-- iterM gives some convenience for writing
+run :: Free TeletypeF a -> IO a
+run (Pure r)               = return r
+run (Free (PrintLine s a)) = putStrLn s >> run a
+run (Free (GetLine f))     = getLine >>= run . f
 
 -- now we can use our algebra
 echo :: Free TeletypeF ()
 echo = do
     s <- getL
     printL s
+
+doThis = runTeletype echo
