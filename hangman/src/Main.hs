@@ -14,14 +14,13 @@ main = do
     let puzzle = freshPuzzle (toLower <$> word)
     runGame puzzle
 
+
+-- WORDS
 newtype Wordlist = Wordlist [String]
     deriving (Eq, Show)
 
 totalGuesses :: Int
-totalGuesses = 10
-
-wordLength :: Int
-wordLength = 6
+totalGuesses = 15
 
 allWords :: IO Wordlist
 allWords = do
@@ -29,10 +28,10 @@ allWords = do
     return $ Wordlist (lines dict)
 
 minWordLength :: Int
-minWordLength = 5
+minWordLength = 4
 
 maxWordLength :: Int
-maxWordLength = 9
+maxWordLength = 8
 
 gameWords :: IO Wordlist
 gameWords = do
@@ -51,6 +50,8 @@ randomWord (Wordlist wl) = do
 randomWord' :: IO String
 randomWord' = gameWords >>= randomWord
 
+
+-- PUZZLE
 --                  toGuess representation guessed
 data Puzzle = Puzzle String [Maybe Char] [Char]
 
@@ -90,7 +91,7 @@ handleGuess puzzle guess = do
                 putStrLn "You already guessed that!"
                 return puzzle
             (True, _) -> do
-                putStrLn "Guessed correctly, filling in"
+                putStrLn "Guessed correctly!"
                 return (fillInCharacter puzzle guess)
             (False, _) -> do
                 putStrLn "No luck, try again"
@@ -98,24 +99,32 @@ handleGuess puzzle guess = do
 
 gameOver :: Puzzle -> IO ()
 gameOver (Puzzle wordToGuess _ guessed) =
-    when (length guessed > 7) $
+    Control.Monad.when (length guessed > totalGuesses) $
         do  putStrLn "You lose"
             putStrLn $ "The word was " <> wordToGuess
             exitSuccess
 
 gameWin :: Puzzle -> IO ()
-gameWin (Puzzle _ filledInSoFar _) =
-    when (all isJust filledInSoFar) $
+gameWin puzzle@(Puzzle _ filledInSoFar _) =
+    Control.Monad.when (all isJust filledInSoFar) $
         do  putStrLn "You win!"
+            putStrLn $ show puzzle
             exitSuccess
 
+-- forever used to run game loop
 runGame :: Puzzle -> IO ()
 runGame puzzle = Control.Monad.forever $ do
-    gameOver puzzle
     gameWin puzzle
+    gameOver puzzle
     putStrLn $ "Current puzzle is: " <> show puzzle
     putStr "Guess a letter: "
     guess <- getLine
-    case guess of
-        [c] -> handleGuess puzzle c >>= runGame
-        _   -> putStrLn "Your guess must be a single char"
+    handleInput puzzle guess
+
+-- respond to different inputs
+handleInput :: Puzzle -> String -> IO ()
+handleInput puzzle s = case s of
+    [c] -> handleGuess puzzle c >>= runGame
+    _   -> putStrLn "Your guess must be a single char"
+
+-- for fun, try to construct a hangman DSL using Free
