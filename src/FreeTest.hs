@@ -1,8 +1,8 @@
 -- {-# LANGUAGE DeriveFunctor #-}
 module FreeTest where
 
-import           Control.Applicative
-import           Control.Monad.Free
+-- import           Control.Applicative
+import           Control.Monad.Free (Free (..), iterM, liftF)
 -- this is defined in Control.Monad.Free
 -- data Free f a
 --     = Free (f (Free f a))
