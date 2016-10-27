@@ -84,6 +84,9 @@ myReverse (x:xs) = myReverse xs ++ [x]
 squish :: [[a]] -> [a]
 squish = foldr (++) []
 
+foldrMap :: (a -> b) -> [a] -> [b]
+foldrMap f = foldr (\x xs -> f x : xs) []
+
 squishMap :: (a -> [b]) -> [a] -> [b]
 squishMap f = foldr (\x xs -> f x ++ xs) []
 
