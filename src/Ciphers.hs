@@ -1,7 +1,8 @@
 module Ciphers where
 
+import           Control.Monad (forever)
 import           Data.Char
-
+import           System.Exit   (exitSuccess)
 
 caesar :: Int -> String -> String
 caesar shift = map (shiftChar (+) shift)
@@ -34,3 +35,24 @@ vigenere = vigen (+)
 
 unvigenere :: String -> String -> String
 unvigenere = vigen (-)
+
+takeInput :: IO ()
+takeInput = forever $ do
+    putStrLn "write 1 for caesar 2 for vigenere cypher"
+    select <- getLine
+    case read select of
+        1 -> do
+            putStrLn "amount to shift (Integer)"
+            shift <- getLine
+            putStrLn "Write your message to be encrypted"
+            msg <- getLine
+            print $ caesar (read shift) msg
+            exitSuccess
+        2 -> do
+            putStrLn "keyword to shift (String)"
+            key <- getLine
+            putStrLn "Write your message to be encrypted"
+            msg <- getLine
+            print $ vigenere key msg
+            exitSuccess
+        _ -> return ()
