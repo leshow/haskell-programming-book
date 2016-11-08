@@ -20,7 +20,7 @@ newtype Wordlist = Wordlist [String]
     deriving (Eq, Show)
 
 totalGuesses :: Int
-totalGuesses = 3
+totalGuesses = 8
 
 allWords :: IO Wordlist
 allWords = do
@@ -52,13 +52,13 @@ randomWord' = gameWords >>= randomWord
 
 
 -- PUZZLE
-type GuessesLeft = Int
+type GuessCount = Int
 --                  toGuess representation guessed
-data Puzzle = Puzzle String [Maybe Char] [Char] GuessesLeft
+data Puzzle = Puzzle String [Maybe Char] [Char] GuessCount
 
 instance Show Puzzle where
-    show (Puzzle _ discovered guessed _) =
-        intersperse ' ' (renderPuzzleChar <$> discovered) <> " Guessed so far: " <> guessed
+    show (Puzzle _ discovered guessed count) =
+        intersperse ' ' (renderPuzzleChar <$> discovered) <> " Guessed so far: " <> guessed <> " guesses left: " <> show (totalGuesses - count)
 
 freshPuzzle :: String -> Puzzle
 freshPuzzle wrd = Puzzle wrd (map (const Nothing) wrd) [] 0
@@ -98,17 +98,9 @@ handleGuess puzzle@(Puzzle a b c g) guess = do
                 putStrLn "No luck, try again"
                 return (fillInCharacter (Puzzle a b c (g+1)) guess)
 
-remainingGuesses :: Puzzle -> Int
-remainingGuesses (Puzzle _ filled guessed _) =
-    length (cancelLists guessed successfulChars)
-    where
-        successfulChars = catMaybes filled
-
-cancelLists ys = foldr (\a b -> if a `elem` ys then b else a : b) []
-
 gameOver :: Puzzle -> IO ()
 gameOver p@(Puzzle wordToGuess filled guessed g) =
-        when (length guessed > g) $
+        when (g > totalGuesses) $
             do
                 putStrLn "You lose"
                 putStrLn $ "The word was " <> wordToGuess
@@ -127,7 +119,6 @@ runGame puzzle = Control.Monad.forever $ do
     gameWin puzzle
     gameOver puzzle
     putStrLn $ "Current puzzle is: " <> show puzzle
-    --print (remainingGuesses puzzle)
     putStr "Guess a letter: "
     guess <- getLine
     handleInput puzzle guess
