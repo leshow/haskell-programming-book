@@ -1,6 +1,7 @@
 module Addition where
 
 import           Test.Hspec
+import Test.QuickCheck
 
 sayHello :: IO ()
 sayHello = putStrLn "Hello!"
@@ -20,6 +21,9 @@ main = hspec $ do
             mult 15 3 `shouldBe` 45
         it "10 multiplied by 5 is 50" $ do
             mult 10 5 `shouldBe` 50
+    describe "QuickCheck " $ do
+        it "x + 1 is always greater than x" $ do
+            property $ \x -> x + 1 > (x :: Int)
 
 dividedBy :: Integral a => a -> a -> (a, a)
 dividedBy num denom = go num denom 0
