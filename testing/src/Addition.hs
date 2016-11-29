@@ -1,6 +1,6 @@
 module Addition where
 
-import           Test.Hspec
+import Test.Hspec
 import Test.QuickCheck
 
 sayHello :: IO ()
@@ -36,3 +36,22 @@ dividedBy num denom = go num denom 0
 mult :: (Eq a, Num a) => a -> a -> a
 mult 0 _ = 0
 mult x y = y + mult (x-1) y
+
+-- in ghci: sample (genTuple :: Gen (Int, Float)) for ex, a and b can be any instance of Arbitrary
+genTuple :: (Arbitrary a, Arbitrary b) => Gen (a, b)
+genTuple = do
+    a <- arbitrary
+    b <- arbitrary
+    return (a, b)
+
+genEither :: (Arbitrary a, Arbitrary b) => Gen (Either a b)
+genEither = do
+    a <- arbitrary
+    b <- arbitrary
+    elements [Left a, Right b]
+
+prop_additionGreater :: Int -> Bool
+prop_additionGreater x = x + 1 > x
+
+runQc :: IO ()
+runQc = quickCheck prop_additionGreater
