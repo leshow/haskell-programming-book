@@ -1,11 +1,3 @@
--- module Morse
--- ( Morse
--- , charToMorse
--- , morseToChar
--- , stringToMorse
--- , letterToMorse
--- , morseToLetter
--- ) where
 module Morse where
 
 

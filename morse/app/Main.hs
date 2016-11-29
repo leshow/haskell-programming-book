@@ -23,6 +23,7 @@ convertToMorse = forever $ do
             Nothing -> do
                 putStrLn $ "ERROR: " ++ line
                 exitFailure
+
 convertFromMorse :: IO ()
 convertFromMorse = forever $ do
     weAreDone <- hIsEOF stdin
