@@ -4,6 +4,11 @@ import           Control.Monad
 import           Data.Monoid     ((<>))
 import           Test.QuickCheck
 
+-- Monoid is closed under an associate binary operation, and has an identity element
+-- i.e. mappend :: m -> m -> m
+-- 'closed' in that the arguments and return type inhabit the same set/type
+
+
 data Optional a
     = Nada
     | Only a
@@ -63,6 +68,7 @@ instance Arbitrary a => Arbitrary (First' a) where
 -- when we withhold the monoid instance for a (i.e. no Monoid a => )
 -- in order to typecheck we can't a <> b. so we end up with a monoid instance
 -- that just gets the first success value
+
 instance Monoid (First' a) where
     mempty = First' Nada
 
