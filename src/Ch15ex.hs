@@ -1,4 +1,4 @@
-module Semigrp where
+module Ch15ex where
 
 import           Data.List.NonEmpty as N
 import           Data.Semigroup
