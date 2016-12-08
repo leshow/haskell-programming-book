@@ -1,5 +1,7 @@
 module Ch16 where
 
+import           Test.QuickCheck
+import           Test.QuickCheck.Function
 --
 -- class Functor f where
 --     fmap :: (a -> b) -> f a -> f b
@@ -152,3 +154,22 @@ instance Functor (Two a) where
 instance Functor (Or a) where
     fmap _ (First a)  = First a
     fmap f (Second b) = Second (f b)
+
+-- we had to partially apply the type because functors
+-- fmap :: (a -> b) -> f a -> f b
+-- 'f a' requires f to be of kind * -> *
+
+-- QuickCheck
+
+functorIdentity :: (Functor f, Eq (f a)) => f a -> Bool
+functorIdentity f = fmap id f == f
+
+functorCompose :: (Eq (f c), Functor f) => (a -> b) -> (b -> c) -> f a -> Bool
+functorCompose f g a = fmap (g . f) a == fmap g (fmap f a)
+
+testId = quickCheck $ \x -> functorIdentity (x :: [Int])
+
+testComp = quickCheck $ \x -> functorCompose (*2) (+2) (x :: [Int])
+
+functorCompose' :: (Eq (f c), Functor f) => f a -> Fun a b -> Fun b c -> Bool
+functorCompose' a (Fun _ f) (Fun _ g) = (fmap (g . f) a) == (fmap g . fmap f $ a)
