@@ -43,3 +43,37 @@ instance Functor WhoCares where
 -- on either side of the fmap definition, for example:
 -- fmap _ ItDoesnt = WhatThisIsCalled
 -- is illegal, it violates the identity law
+
+
+{-
+ex for
+(.) :: (b -> c) -> (a -> b) -> a -> c
+fmap1 :: (d -> e) -> m d -> m e
+fmap1 :: (f -> g) -> n f -> n g
+
+b = (d -> e) = (n f -> n g)
+c = (m d -> m e)
+a = (f -> g)
+
+c = (m (n f) -> m (n g))
+
+in (.) fmap fmap :: (b -> c) -> (a -> b) -> a -> c
+(b -> c) and (a -> b) are already applied, so the type is of (a -> c)
+
+so,
+    (a -> c)
+    ~ (f -> g) -> (m (n f) -> m (n g))
+    ~ (f -> g) -> m (n f) -> m (n g)
+
+lets try :t flip id
+
+flip :: (a -> b -> c) -> b -> a -> c
+id :: (a -> a)
+
+a = a = b -> c
+
+so,
+    b -> a -> c          -- (first arg removed)
+    ~ b -> (b -> c) -> c
+
+-}
