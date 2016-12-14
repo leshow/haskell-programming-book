@@ -249,3 +249,10 @@ data Sum a b
 instance Functor (Sum a) where
     fmap f (SFirst a)  = SFirst a
     fmap f (SSecond b) = SSecond (f b)
+
+newtype Constant a b
+    = Constant { getConstant :: a }
+    deriving (Eq, Show)
+
+instance Functor (Constant a) where
+    fmap _ (Constant a) = Constant a
