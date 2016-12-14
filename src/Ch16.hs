@@ -226,3 +226,26 @@ instance Functor (Four' a) where
 -- 8
 -- No, because it has no type parameter that it's polymorphic over. We have nothing
 -- to map f onto
+
+
+-- Exercise: Possibly
+
+data Possibly a
+    = LolNope
+    | Yeppers a
+    deriving (Eq, Show)
+
+instance Functor Possibly where
+    fmap _ LolNope     = LolNope
+    fmap f (Yeppers a) = Yeppers (f a)
+
+-- Either
+
+data Sum a b
+    = SFirst a
+    | SSecond b
+    deriving (Eq, Show)
+
+instance Functor (Sum a) where
+    fmap f (SFirst a)  = SFirst a
+    fmap f (SSecond b) = SSecond (f b)
