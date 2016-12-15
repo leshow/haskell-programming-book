@@ -1,7 +1,11 @@
+{-# LANGUAGE FlexibleInstances #-}
+
 module Ch16 where
 
+import           GHC.Arr
 import           Test.QuickCheck
 import           Test.QuickCheck.Function
+
 --
 -- class Functor f where
 --     fmap :: (a -> b) -> f a -> f b
@@ -256,3 +260,104 @@ newtype Constant a b
 
 instance Functor (Constant a) where
     fmap _ (Constant a) = Constant a
+
+
+-- Ch exercises
+
+-- 1 no
+
+-- 2
+data BoolAndSomethingElse a
+    = False' a | True' a
+
+instance Functor (BoolAndSomethingElse) where
+    fmap f (True' a)  = True' (f a)
+    fmap f (False' a) = False' (f a)
+
+-- 3
+
+data BoolAndMaybeSomethingElse a = Falsish | Truish a
+
+instance Functor (BoolAndMaybeSomethingElse) where
+    fmap f (Truish a) = Truish (f a)
+    fmap _ Falsish    = Falsish
+
+-- 4
+
+newtype Mu f = InF { outF :: f (Mu f) }
+
+-- :k (* -> *) -> *
+-- i dont beleive a functor instance is possible. i enabled GeneralizedNewtypeDeriving and
+-- DeriveFunctor and tried to auto-derive an instance, it was NOT able to.
+
+-- 5
+
+data D = D (Array Word Word) Int Int
+
+-- :k *
+-- meaning no,
+
+-- 1
+data Sum'' b a =
+    First' a
+    | Second' b
+
+instance Functor (Sum'' e) where
+    fmap f (First' a)  = First' (f a)
+    fmap f (Second' b) = Second' b
+
+-- 2
+data Company a b c
+    = DeepBlue a b
+    | Something c
+
+instance Functor (Company e e') where
+    fmap f (Something c)  = Something (f c)
+    fmap _ (DeepBlue a b) = DeepBlue a b
+
+-- 3
+
+data More a b
+    = L b a b
+    | R a b a
+    deriving (Eq, Show)
+
+instance Functor (More x) where
+    fmap f (L a b a') = L (f a) b (f a')
+    fmap f (R b a b') = R b (f a) b'
+
+-- 4
+
+data Quant a b
+    = Finance
+    | Desk a
+    | Bloor b
+
+instance Functor (Quant a) where
+    fmap _ Finance   = Finance
+    fmap _ (Desk a)  = Desk a
+    fmap f (Bloor b) = Bloor (f b)
+
+-- 5
+
+data K a b
+    = K a
+
+instance Functor (K a) where
+    fmap _ (K a) = K a      -- can't use f here because of the way K is parametrized. can only map to b
+
+-- 6
+
+newtype Flip f a b = Flip (f b a) deriving (Eq, Show)
+
+newtype K' a b = K' a
+
+instance Functor (Flip K' a) where
+    fmap f (Flip (K' a)) = Flip $ K' (f a)
+
+-- 7
+
+data EvilGoateeConst a b = GoatyConst b
+
+instance Functor (EvilGoateeConst a) where
+    fmap f (GoatyConst b) = GoatyConst (f b)
