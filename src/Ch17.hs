@@ -17,3 +17,8 @@ module Ch17 where
 -- fmap f x == pure f <*> x
 -- and
 -- fmap (+1) [1,2,3] == pure (+1) <*> [1,2,3]
+
+
+-- ("Woo", (+1)) <*> ("Hoo!", 0) -- ("WooHoo!", 1)
+
+-- notice the strings concatenated. this is due to Monoid instances for that value
