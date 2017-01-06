@@ -92,3 +92,49 @@ instance Monoid a => Applicative (Constant a) where
     -- following are both valid (I think)
     -- (<*>) (Constant a) (Constant b) = Constant { getConstant = a `mappend` b }
     fab <*> fa = Constant (getConstant fab <> getConstant fa)
+
+validateLength :: Int -> String -> Maybe String
+validateLength maxLen s =
+    if length s > maxLen
+        then Nothing
+        else Just s
+
+newtype Name = Name String deriving (Eq, Show)
+
+newtype Address = Address String deriving (Eq, Show)
+
+mkName :: String -> Maybe Name
+mkName s = fmap Name $ validateLength 25 s
+-- mkName s = Name <$> validateLength 25 s
+-- mkName = (Name <$>) . (validateLength 25)
+-- mkName = (Name <$>) . validateLength 25
+
+mkAddress :: String -> Maybe Address
+mkAddress a = Address <$> validateLength 100 a
+
+data Person
+    = Person Name Address
+    deriving (Eq, Show)
+
+-- mkPerson :: String -> String -> Maybe Person
+-- mkPerson n a =
+--     case mkName n of
+--         Just name ->
+--             case mkAddress a of
+--                 Just add -> Just $ Person name add
+--                 Nothing  -> Nothing
+--         Nothing -> Nothing
+
+-- λ> let name = mkName "Dildo Baggins"
+-- λ> :t name
+-- name :: Maybe Name
+-- λ> let address = mkAddress "the shire"
+-- λ> :t address
+-- address :: Maybe Address
+-- λ> :t Person <$> name
+-- Person <$> name :: Maybe (Address -> Person)
+-- λ> :t Person <$> name <*> address
+-- Person <$> name <*> address :: Maybe Person
+
+mkPerson :: String -> String -> Maybe Person
+mkPerson n a = Person <$> mkName n <*> mkAddress a
