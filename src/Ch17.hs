@@ -1,3 +1,5 @@
+{-# LANGUAGE ApplicativeDo #-}
+
 module Ch17 where
 
 -- (<$>) :: Functor f => (a -> b) -> f a -> f b
@@ -138,3 +140,18 @@ data Person
 
 mkPerson :: String -> String -> Maybe Person
 mkPerson n a = Person <$> mkName n <*> mkAddress a
+
+-- attempt with ApplicativeDo
+mkPerson' :: String -> String -> Maybe Person
+mkPerson' n a = do
+    x <- mkName n
+    y <- mkAddress a
+    return $ Person x y
+
+
+data Cow
+    = Cow {
+    name     :: String
+    , age    :: Int
+    , weight :: Int
+} deriving (Eq, Show)
