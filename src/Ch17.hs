@@ -25,6 +25,7 @@ module Ch17 where
 
 import           Control.Applicative
 import           Data.List           (elemIndex)
+import           Data.Monoid         ((<>))
 
 added :: Maybe Integer
 added = (+3) <$> lookup 3 (zip [1,2,3] [4,5,6])
@@ -38,7 +39,7 @@ z = lookup 2 $ zip [1,2,3] [4,5,6]
 
 tupled :: Maybe (Integer, Integer)
 tupled = liftA2 (,) y z
--- (,) <$> y <*> z
+-- (,) <$> y <*> zpp
 
 x' :: Maybe Int
 x' = elemIndex 3 [1..5]
@@ -67,3 +68,27 @@ y'' = lookup 2 $ zip xs ys
 summed :: Maybe Integer
 summed = sum <$> ((,) <$> x'' <*> y'')
 -- sum <$> liftA2 (,) x'' y''
+
+
+newtype Identity a = Identity a
+    deriving (Eq, Ord, Show)
+
+instance Functor Identity where
+    fmap f (Identity a) = Identity (f a)
+
+instance Applicative Identity where
+    pure = Identity
+    (<*>) (Identity f) fa = f <$> fa
+
+newtype Constant a b
+    = Constant { getConstant :: a }
+    deriving (Eq, Ord, Show)
+
+instance Functor (Constant a) where
+    fmap _ (Constant a) = Constant a
+
+instance Monoid a => Applicative (Constant a) where
+    pure a = Constant { getConstant = mempty }
+    -- following are both valid (I think)
+    -- (<*>) (Constant a) (Constant b) = Constant { getConstant = a `mappend` b }
+    fab <*> fa = Constant (getConstant fab <> getConstant fa)
