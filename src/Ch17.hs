@@ -169,3 +169,12 @@ cowFromString n a w =
     Cow <$> noEmpty n
     <*> noNegative a
     <*> noNegative w
+-- liftA3 Cow (noEmpty n) (noNegative a) (noNegative w)
+
+-- Exercises
+ax = const <$> Just "Hello" <*> pure "World"
+bx = (,,,) <$> Just 90 <*> Just 10 <*> Just "Tierness" <*> Just [1, 2, 3]
+
+-- Applicative Laws
+-- Identity: 
+-- pure id <*> v = v
