@@ -176,5 +176,8 @@ ax = const <$> Just "Hello" <*> pure "World"
 bx = (,,,) <$> Just 90 <*> Just 10 <*> Just "Tierness" <*> Just [1, 2, 3]
 
 -- Applicative Laws
--- Identity: 
+-- Identity:
 -- pure id <*> v = v
+
+-- A homomorphism is a structure preserving map between two algebraic structures
+-- pure f <*> pure x = pure (f x)
