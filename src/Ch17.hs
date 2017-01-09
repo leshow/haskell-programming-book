@@ -181,3 +181,46 @@ bx = (,,,) <$> Just 90 <*> Just 10 <*> Just "Tierness" <*> Just [1, 2, 3]
 
 -- A homomorphism is a structure preserving map between two algebraic structures
 -- pure f <*> pure x = pure (f x)
+
+
+data List a
+    = Nil
+    | Cons a (List a)
+    deriving (Eq, Show)
+
+instance Functor List where
+    fmap _ Nil         = Nil
+    fmap f (Cons a la) = Cons (f a) (fmap f la)
+
+instance Monoid (List a) where
+    mempty = Nil
+    mappend Nil lb         = lb
+    mappend (Cons a la) lb = Cons a (la `mappend` lb)
+
+instance Applicative List where
+    pure a = Cons a Nil
+
+    (<*>) Nil Nil = Nil
+    (<*>) Nil _   = Nil
+    (<*>) _ Nil   = Nil
+    --(Cons f fs) <*> (Cons a as) = Cons (f a) (fs <*> as) -- type checks but is wrong
+    (Cons f fs) <*> as = mappend (fmap f as) (fs <*> as)
+    --fold (<>) Nil (fmap f <$> Cons lb Nil) <> (fa <*> lb) -- also seems to be correct but is long
+
+
+append :: List a -> List a -> List a
+append Nil ys         = ys
+append (Cons x xs) ys = Cons x $ xs `append` ys
+
+fold :: (a -> b -> b) -> b -> List a -> b
+fold _ b Nil        = b
+fold f b (Cons h t) = f h (fold f b t)
+
+concat' :: List (List a) -> List a
+concat' = fold append Nil
+
+-- write this one in terms of concat' and fmap
+flatMap :: (a -> List b) -> List a -> List b
+flatMap _ Nil = Nil
+flatMap f as  = concat' (fmap f as)
+>>>>>>> Applicative instance for list
