@@ -23,6 +23,7 @@ library
                      , free
                      , hspec
                      , QuickCheck
+                     , checkers
   default-language:    Haskell2010
 
  -- executable haskell-programming
