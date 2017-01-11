@@ -223,13 +223,3 @@ concat' = fold append Nil
 flatMap :: (a -> List b) -> List a -> List b
 flatMap _ Nil = Nil
 flatMap f as  = concat' (fmap f as)
-
-newtype ZipList' a = ZipList' (List a)
-    deriving (Eq, Show)
-
-instance Functor ZipList' where
-fmap f (ZipList' xs) = ZipList' $ fmap f xs
-
-instance Applicative ZipList' where
-pure = undefined
-(<*>) (Cons f fs) as = Cons (f a) (fs <*> as)
