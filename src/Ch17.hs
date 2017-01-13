@@ -415,3 +415,13 @@ runAppTests = do
   quickBatch (applicative (undefined ::
                               Four' (S, S, S)
                                     (I, I, I)))
+
+
+stops :: String
+stops = "pbtdkg"
+
+vowels :: String
+vowels = "aeiou"
+
+combos :: [a] -> [b] -> [c] -> [(a, b, c)]
+combos = liftA3 (,,)
