@@ -249,7 +249,7 @@ instance Monoid e => Applicative (Validation e) where
     (Failure e) <*> (Failure e')    = Failure $ e <> e'
     _ <*> (Failure e')              = Failure e'
     (Failure e) <*> _               = Failure e
-    (Success f) <*> (Success a)     = Success $ f a
+    Success f <*> Success a         = Success $ f a
 
 instance (Arbitrary e, Arbitrary a) => Arbitrary (Validation e a) where
     arbitrary = do
@@ -260,8 +260,158 @@ instance (Arbitrary e, Arbitrary a) => Arbitrary (Validation e a) where
 instance (Eq e, Eq a) => EqProp (Validation e a) where
     (=-=) = eq
 
-type S = String
-
 testVal = do
   putStrLn "-- applicative Validation"
   quickBatch (applicative (undefined :: Validation S (S, S, S)))
+
+-- chapter exercises
+
+-- 1
+data Pair a = Pair a a deriving (Eq, Show)
+
+instance Functor Pair where
+    fmap f (Pair a a') = Pair (f a) (f a')
+
+instance Applicative Pair where
+    pure a = Pair a a
+    Pair a a' <*> Pair b b' = Pair (a b) (a' b')
+
+instance Arbitrary a => Arbitrary (Pair a) where
+    arbitrary = do
+        a <- arbitrary
+        a' <- arbitrary
+        return $ Pair a a'
+
+instance Eq a => EqProp (Pair a) where
+    (=-=) = eq
+
+-- 2
+
+data Two a b = Two a b deriving (Eq, Show)
+
+instance Functor (Two a) where
+    fmap f (Two a b) = Two a (f b)
+
+instance Monoid a => Applicative (Two a) where
+    pure = Two mempty
+    Two a b <*> Two a' b' = Two (a <> a') (b b')
+
+instance (Arbitrary a, Arbitrary b) => Arbitrary (Two a b) where
+    arbitrary = do
+        a <- arbitrary
+        b <- arbitrary
+        return $ Two a b
+
+instance (Eq a, Eq b) => EqProp (Two a b) where
+    (=-=) = eq
+
+-- 3
+data Three a b c = Three a b c deriving (Eq, Show)
+
+instance Functor (Three a b) where
+    fmap f (Three a b c) = Three a b (f c)
+
+instance (Monoid a, Monoid b) => Applicative (Three a b) where
+    pure = Three mempty mempty
+    Three a b c <*> Three a' b' c' = Three (a <> a') (b <> b') (c c')
+
+instance (Arbitrary a, Arbitrary b, Arbitrary c) => Arbitrary (Three a b c) where
+    arbitrary = do
+        a <- arbitrary
+        b <- arbitrary
+        c <- arbitrary
+        return $ Three a b c
+
+instance (Eq a, Eq b, Eq c) => EqProp (Three a b c) where
+    (=-=) = eq
+
+-- 4
+
+data Three' a b = Three' a b b deriving (Eq, Show)
+
+instance Functor (Three' a) where
+    fmap f (Three' a b b') = Three' a (f b) (f b')
+
+instance Monoid a => Applicative (Three' a) where
+    pure b = Three' mempty b b
+    Three' a b b' <*> Three' as bs bs' = Three' (a <> as) (b bs) (b' bs')
+
+instance (Arbitrary a, Arbitrary b) => Arbitrary (Three' a b) where
+    arbitrary = do
+        a <- arbitrary
+        b <- arbitrary
+        b' <- arbitrary
+        return $ Three' a b b'
+
+instance (Eq a, Eq b) => EqProp (Three' a b) where
+    (=-=) = eq
+
+
+-- 5
+data Four a b c d = Four a b c d deriving (Eq, Show)
+
+instance Functor (Four a b c) where
+    fmap f (Four a b c d) = Four a b c (f d)
+
+instance (Monoid a, Monoid b, Monoid c) => Applicative (Four a b c) where
+    pure = Four mempty mempty mempty
+    Four a b c d <*> Four a' b' c' d' = Four (a <> a') (b <> b') (c <> c') (d d')
+
+instance (Arbitrary a, Arbitrary b, Arbitrary c, Arbitrary d) => Arbitrary (Four a b c d) where
+    arbitrary = do
+        a <- arbitrary
+        b <- arbitrary
+        c <- arbitrary
+        d <- arbitrary
+        return $ Four a b c d
+
+instance (Eq a, Eq b, Eq c, Eq d) => EqProp (Four a b c d) where
+    (=-=) = eq
+
+-- 6
+
+data Four' a b = Four' a a a b deriving (Eq, Show)
+
+instance Functor (Four' a) where
+    fmap f (Four' a a' a'' b) = Four' a a' a'' (f b)
+
+instance Monoid a => Applicative (Four' a) where
+    pure = Four' mempty mempty mempty
+    Four' a a' a'' b <*> Four' as as' as'' bs = Four' (a <> as) (a' <> as') (a'' <> as'') (b bs)
+
+instance (Arbitrary a, Arbitrary b) => Arbitrary (Four' a b) where
+    arbitrary = do
+        a <- arbitrary
+        a' <- arbitrary
+        a'' <- arbitrary
+        b <- arbitrary
+        return $ Four' a a' a'' b
+
+instance (Eq a, Eq b) => EqProp (Four' a b) where
+    (=-=) = eq
+
+type S = String
+type I = Int
+
+runAppTests :: IO ()
+runAppTests = do
+  putStr "\n-- Pair"
+  quickBatch (applicative (undefined :: Pair (I, I, I)))
+  putStr "\n-- Two"
+  quickBatch (applicative (undefined :: Two (S, S, S) (I, I, I)))
+  putStr "\n-- Three"
+  quickBatch (applicative (undefined ::
+                              Three (S, S, S) (S, S, S) (I, I, I)))
+  putStr "\n-- Three'"
+  quickBatch (applicative (undefined ::
+                              Three' (S, S, S) (I, I, I)))
+  putStr "\n-- Four"
+  quickBatch (applicative (undefined ::
+                              Four (S, S, S)
+                                   (S, S, S)
+                                   (S, S, S)
+                                   (I, I, I)))
+  putStr "\n-- Four'"
+  quickBatch (applicative (undefined ::
+                              Four' (S, S, S)
+                                    (I, I, I)))

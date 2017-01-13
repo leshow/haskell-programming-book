@@ -75,7 +75,7 @@ zipWith' f (Cons x xs) (Cons x' xs') = Cons (f x x') (zipWith' f xs xs')
 
 instance Applicative ZipList' where
   pure a = ZipList' (repeat' a)
-  (ZipList' la) <*> (ZipList' lb) = ZipList' $ zipWith' ($) la lb
+  ZipList' la <*> ZipList' lb = ZipList' $ zipWith' ($) la lb
 
 runTests :: IO ()
 runTests = do
