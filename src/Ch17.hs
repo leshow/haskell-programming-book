@@ -26,8 +26,11 @@ module Ch17 where
 -- notice the strings concatenated. this is due to Monoid instances for that value
 
 import           Control.Applicative
-import           Data.List           (elemIndex)
-import           Data.Monoid         ((<>))
+import           Data.List                (elemIndex)
+import           Data.Monoid              ((<>))
+import           Test.QuickCheck          hiding (Failure, Success)
+import           Test.QuickCheck.Checkers
+import           Test.QuickCheck.Classes
 
 added :: Maybe Integer
 added = (+3) <$> lookup 3 (zip [1,2,3] [4,5,6])
@@ -223,3 +226,42 @@ concat' = fold append Nil
 flatMap :: (a -> List b) -> List a -> List b
 flatMap _ Nil = Nil
 flatMap f as  = concat' (fmap f as)
+
+data Validation err a
+    = Failure err
+    | Success a
+    deriving (Eq, Show)
+
+validToEither :: Validation e a -> Either e a
+validToEither (Failure err) = Left err
+validToEither (Success a)   = Right a
+
+eitherToValid :: Either e a -> Validation e a
+eitherToValid (Left err) = Failure err
+eitherToValid (Right a)  = Success a
+
+instance Functor (Validation e) where
+    fmap _ (Failure e) = Failure e
+    fmap f (Success a) = Success $ f a
+
+instance Monoid e => Applicative (Validation e) where
+    pure = Success
+    (Failure e) <*> (Failure e')    = Failure $ e <> e'
+    _ <*> (Failure e')              = Failure e'
+    (Failure e) <*> _               = Failure e
+    (Success f) <*> (Success a)     = Success $ f a
+
+instance (Arbitrary e, Arbitrary a) => Arbitrary (Validation e a) where
+    arbitrary = do
+        a <- arbitrary
+        e <- arbitrary
+        elements [Success a, Failure e]
+
+instance (Eq e, Eq a) => EqProp (Validation e a) where
+    (=-=) = eq
+
+type S = String
+
+testVal = do
+  putStrLn "-- applicative Validation"
+  quickBatch (applicative (undefined :: Validation S (S, S, S)))
