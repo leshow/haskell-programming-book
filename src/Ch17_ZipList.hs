@@ -68,12 +68,14 @@ repeat' :: a -> List a
 repeat' x = Cons x (repeat' x)
 
 zipWith' :: (a -> b -> c) -> List a -> List b -> List c
+zipWith' _ Nil _                     = Nil
+zipWith' _ _ Nil                     = Nil
 zipWith' f (Cons x xs) (Cons x' xs') = Cons (f x x') (zipWith' f xs xs')
-zipWith' _ _ _                       = Nil
+
 
 instance Applicative ZipList' where
-  pure = ZipList' . repeat'
-  (ZipList' l) <*> (ZipList' l') = ZipList' $ zipWith' ($) l l'
+  pure a = ZipList' (repeat' a)
+  (ZipList' la) <*> (ZipList' lb) = ZipList' $ zipWith' ($) la lb
 
 runTests :: IO ()
 runTests = do
