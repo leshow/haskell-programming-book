@@ -395,26 +395,22 @@ type I = Int
 
 runAppTests :: IO ()
 runAppTests = do
-  putStr "\n-- Pair"
-  quickBatch (applicative (undefined :: Pair (I, I, I)))
-  putStr "\n-- Two"
-  quickBatch (applicative (undefined :: Two (S, S, S) (I, I, I)))
-  putStr "\n-- Three"
-  quickBatch (applicative (undefined ::
-                              Three (S, S, S) (S, S, S) (I, I, I)))
-  putStr "\n-- Three'"
-  quickBatch (applicative (undefined ::
-                              Three' (S, S, S) (I, I, I)))
-  putStr "\n-- Four"
-  quickBatch (applicative (undefined ::
+    putStr "\n-- Pair"
+    quickBatch (applicative (undefined :: Pair (I, I, I)))
+    putStr "\n-- Two"
+    quickBatch (applicative (undefined :: Two (S, S, S) (I, I, I)))
+    putStr "\n-- Three"
+    quickBatch (applicative (undefined :: Three (S, S, S) (S, S, S) (I, I, I)))
+    putStr "\n-- Three'"
+    quickBatch (applicative (undefined :: Three' (S, S, S) (I, I, I)))
+    putStr "\n-- Four"
+    quickBatch (applicative (undefined ::
                               Four (S, S, S)
                                    (S, S, S)
                                    (S, S, S)
                                    (I, I, I)))
-  putStr "\n-- Four'"
-  quickBatch (applicative (undefined ::
-                              Four' (S, S, S)
-                                    (I, I, I)))
+    putStr "\n-- Four'"
+    quickBatch (applicative (undefined :: Four' (S, S, S) (I, I, I)))
 
 
 stops :: String
