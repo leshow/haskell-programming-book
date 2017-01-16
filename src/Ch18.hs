@@ -1,3 +1,4 @@
+{-# LANGUAGE RecordWildCards #-}
 -- Monads, not burritos
 module Ch18 where
 
@@ -27,3 +28,49 @@ parMap' f (x:xs) = do
     return (x' : xs')
 
 runPar = runEval $ parMap' (+ 5) [1 .. 10000]
+
+data Cow = Cow {
+    name     :: String
+    , age    :: Int
+    , weight :: Int
+    } deriving (Eq, Show)
+
+noEmpty :: String -> Maybe String
+noEmpty ""  = Nothing
+noEmpty str = Just str
+
+noNegative :: Int -> Maybe Int
+noNegative n | n >= 0 = Just n
+             | otherwise = Nothing
+
+weightCheck :: Cow -> Maybe Cow
+weightCheck c@Cow{..} = if name == "Bess" && weight > 499
+                        then Nothing
+                        else Just c
+
+
+mkSphericalCow :: String -> Int -> Int -> Maybe Cow
+mkSphericalCow name' age' weight' =
+    case noEmpty name' of
+        Nothing -> Nothing
+        Just nammy ->
+            case noNegative age' of
+                Nothing -> Nothing
+                Just agey ->
+                    case noNegative weight' of
+                        Nothing      -> Nothing
+                        Just weighty -> weightCheck (Cow nammy agey weighty)
+
+mkSphericalCow' :: String -> Int -> Int -> Maybe Cow
+mkSphericalCow' n' a' w' = do
+    name <- noEmpty n'
+    age <- noNegative a'
+    weight <- noNegative w'
+    weightCheck $ Cow name age weight
+
+mkSphericalCow'' :: String -> Int -> Int -> Maybe Cow
+mkSphericalCow'' n a w =
+    noEmpty n >>= \name ->
+        noNegative a >>= \age ->
+            noNegative w >>= \weight ->
+                weightCheck $ Cow name age weight
