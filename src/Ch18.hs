@@ -74,3 +74,25 @@ mkSphericalCow'' n a w =
         noNegative a >>= \age ->
             noNegative w >>= \weight ->
                 weightCheck $ Cow name age weight
+
+data Sum a b
+    = First a
+    | Second b
+    deriving (Eq, Show)
+
+instance Functor (Sum a) where
+    fmap _ (First a)  = First a
+    fmap f (Second b) = Second $ f b
+
+instance Applicative (Sum a) where
+    pure = Second
+
+    First a <*> _   = First a
+    Second f <*> b  = fmap f b
+
+-- m a -> (a -> m b) -> m b
+-- we just unwrap the (m a) to get our a, then apply f to get m b
+instance Monad (Sum a) where
+    return = pure
+    (>>=) (First a) _  = First a
+    (>>=) (Second b) f = f b
