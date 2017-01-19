@@ -252,10 +252,7 @@ instance Monoid e => Applicative (Validation e) where
     Success f <*> Success a         = Success $ f a
 
 instance (Arbitrary e, Arbitrary a) => Arbitrary (Validation e a) where
-    arbitrary = do
-        a <- arbitrary
-        e <- arbitrary
-        elements [Success a, Failure e]
+    arbitrary = oneof [Success <$> arbitrary, Failure <$> arbitrary]
 
 instance (Eq e, Eq a) => EqProp (Validation e a) where
     (=-=) = eq
@@ -297,10 +294,7 @@ instance Monoid a => Applicative (Two a) where
     Two a b <*> Two a' b' = Two (a <> a') (b b')
 
 instance (Arbitrary a, Arbitrary b) => Arbitrary (Two a b) where
-    arbitrary = do
-        a <- arbitrary
-        b <- arbitrary
-        return $ Two a b
+    arbitrary = Two <$> arbitrary <*> arbitrary
 
 instance (Eq a, Eq b) => EqProp (Two a b) where
     (=-=) = eq
@@ -316,11 +310,13 @@ instance (Monoid a, Monoid b) => Applicative (Three a b) where
     Three a b c <*> Three a' b' c' = Three (a <> a') (b <> b') (c c')
 
 instance (Arbitrary a, Arbitrary b, Arbitrary c) => Arbitrary (Three a b c) where
-    arbitrary = do
-        a <- arbitrary
-        b <- arbitrary
-        c <- arbitrary
-        return $ Three a b c
+    arbitrary = Three <$> arbitrary <*> arbitrary <*> arbitrary
+    -- this also works, using monad instance
+        -- do
+        --     a <- arbitrary
+        --     b <- arbitrary
+        --     c <- arbitrary
+        --     return $ Three a b c
 
 instance (Eq a, Eq b, Eq c) => EqProp (Three a b c) where
     (=-=) = eq
@@ -337,11 +333,7 @@ instance Monoid a => Applicative (Three' a) where
     Three' a b b' <*> Three' as bs bs' = Three' (a <> as) (b bs) (b' bs')
 
 instance (Arbitrary a, Arbitrary b) => Arbitrary (Three' a b) where
-    arbitrary = do
-        a <- arbitrary
-        b <- arbitrary
-        b' <- arbitrary
-        return $ Three' a b b'
+    arbitrary = liftA3 Three' arbitrary arbitrary arbitrary -- Three' <$> arbitrary ... also works
 
 instance (Eq a, Eq b) => EqProp (Three' a b) where
     (=-=) = eq
@@ -358,12 +350,7 @@ instance (Monoid a, Monoid b, Monoid c) => Applicative (Four a b c) where
     Four a b c d <*> Four a' b' c' d' = Four (a <> a') (b <> b') (c <> c') (d d')
 
 instance (Arbitrary a, Arbitrary b, Arbitrary c, Arbitrary d) => Arbitrary (Four a b c d) where
-    arbitrary = do
-        a <- arbitrary
-        b <- arbitrary
-        c <- arbitrary
-        d <- arbitrary
-        return $ Four a b c d
+    arbitrary = Four <$> arbitrary <*> arbitrary <*> arbitrary <*> arbitrary
 
 instance (Eq a, Eq b, Eq c, Eq d) => EqProp (Four a b c d) where
     (=-=) = eq
@@ -380,12 +367,13 @@ instance Monoid a => Applicative (Four' a) where
     Four' a a' a'' b <*> Four' as as' as'' bs = Four' (a <> as) (a' <> as') (a'' <> as'') (b bs)
 
 instance (Arbitrary a, Arbitrary b) => Arbitrary (Four' a b) where
-    arbitrary = do
-        a <- arbitrary
-        a' <- arbitrary
-        a'' <- arbitrary
-        b <- arbitrary
-        return $ Four' a a' a'' b
+    arbitrary = Four' <$> arbitrary <*> arbitrary <*> arbitrary <*> arbitrary
+        --     do
+        -- a <- arbitrary
+        -- a' <- arbitrary
+        -- a'' <- arbitrary
+        -- b <- arbitrary
+        -- return $ Four' a a' a'' b
 
 instance (Eq a, Eq b) => EqProp (Four' a b) where
     (=-=) = eq
