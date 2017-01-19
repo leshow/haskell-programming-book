@@ -30,5 +30,5 @@ instance Foldable Opt where
     foldl _ z Nada     = z
     foldl f z (Yasa a) = f z a
 
-    foldMap _ Nada    = mempty
+    foldMap _ Nada     = mempty
     foldMap f (Yasa a) = f a
