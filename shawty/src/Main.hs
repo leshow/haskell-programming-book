@@ -6,6 +6,7 @@ module Main where
 import           Control.Monad          (replicateM)
 import           Control.Monad.IO.Class (liftIO)
 import qualified Data.ByteString.Char8  as BC
+import           Data.Monoid            ((<>))
 import           Data.Text.Encoding     (decodeUtf8, encodeUtf8)
 import qualified Data.Text.Lazy         as TL
 import qualified Database.Redis         as R
@@ -46,14 +47,12 @@ app rConn = do
                         tbs = TL.fromStrict (decodeUtf8 bs)
 
 alphaNum :: String
-alphaNum = ['A'..'Z'] ++ ['0'..'9']
-
+alphaNum = ['A'..'Z'] <> ['0'..'9']
 
 randomElement :: String -> IO Char
 randomElement xs = do
     let maxIndex :: Int
         maxIndex = length xs - 1
-    -- Right of arrow is IO Int, so randomDigit is Int
     randomDigit <- SR.randomRIO (0, maxIndex) :: IO Int
     return (xs !! randomDigit)
 
@@ -74,7 +73,6 @@ linkShorty shorty =
     , "\">Copy and paste your short URL</a>"
     ]
 
--- TL.concat :: [TL.Text] -> TL.Text
 shortyCreated :: Show a => a -> String -> TL.Text
 shortyCreated resp shawty =
     TL.concat [ TL.pack (show resp)
