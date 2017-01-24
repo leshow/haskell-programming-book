@@ -57,8 +57,7 @@ randomElement xs = do
     return (xs !! randomDigit)
 
 shortyGen :: IO String -- [Char]
-shortyGen = replicateM 7 (randomElement alphaNum)
-
+shortyGen = replicateM 12 (randomElement alphaNum)
 
 saveURI :: R.Connection -> BC.ByteString -> BC.ByteString -> IO (Either R.Reply R.Status)
 saveURI conn shortURI uri = R.runRedis conn $ R.set shortURI uri
