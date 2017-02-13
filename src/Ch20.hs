@@ -100,3 +100,20 @@ myFoldMap f = fold . fmap f
 
 otherFMap :: (Foldable t, Monoid m) => (a -> m) -> t a -> m
 otherFMap f = foldr (\x acc -> f x `mappend` acc) mempty
+
+-- Ch 20 exercises
+
+data Constant a b = Constant a
+
+instance Foldable (Constant a) where
+    foldMap f (Constant a) = mempty
+
+data Two a b = Two a b
+
+instance Foldable (Two a) where
+    foldMap f (Two a b) = f b
+
+data Three a b c = Three a b c
+
+instance Foldable (Three a b) where
+    foldMap f (Three a b c) = f c
