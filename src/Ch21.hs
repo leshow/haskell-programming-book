@@ -63,6 +63,8 @@ type T3 = Optional
 type T4 = List
 type T5 = Three Int Int
 type T6 = Three' Int
+type T7 = S Maybe
+type T8 = Tree
 
 run = do
     quickBatch (traversable (undefined :: T1 (Int, Int, [Int])))
@@ -70,7 +72,8 @@ run = do
     quickBatch (traversable (undefined :: T3 (Int, Int, [Int])))
     quickBatch (traversable (undefined :: T4 (Int, Int, [Int])))
     quickBatch (traversable (undefined :: T5 (Int, Int, [Int])))
-    quickBatch (traversable (undefined :: T6 (Int, Int, [Int])))        
+    quickBatch (traversable (undefined :: T6 (Int, Int, [Int])))
+    quickBatch (traversable (undefined :: T7 (Int, Int, [Int])))
 
 -- 1
 newtype Identity a = Identity a
@@ -219,7 +222,8 @@ instance (Arbitrary a, Arbitrary b) => Arbitrary (Three' a b) where
     arbitrary = do
         a <- arbitrary
         b <- arbitrary
-        return $ Three' a b b
+        b' <- arbitrary
+        return $ Three' a b b'
 
 instance (Eq a, Eq b) => EqProp (Three' a b) where
     (=-=) = eq
@@ -228,7 +232,54 @@ instance Functor (Three' a) where
     fmap f (Three' a b b') = Three' a (f b) (f b')
 
 instance Foldable (Three' a) where
-    foldMap f (Three' a b b') = f b'
+    foldMap f (Three' a b b') = f b <> f b'
 
 instance Traversable (Three' a) where
     traverse f (Three' a b b') = Three' a <$> f b <*> f b'
+
+-- 6
+
+data S n a = S (n a) a deriving (Eq, Show)
+
+
+instance (Arbitrary (n a), Arbitrary a) => Arbitrary (S n a) where
+    arbitrary = S <$> arbitrary <*> arbitrary
+
+instance (Eq (n a), Eq a) => EqProp (S n a) where
+    (=-=) = eq
+
+instance Functor n => Functor (S n) where
+    fmap f (S n a) = S (fmap f n) (f a)
+
+instance Foldable n => Foldable (S n) where
+    foldMap f (S n a) = foldMap f n <> f a
+
+instance Traversable n => Traversable (S n) where
+    traverse f (S n a) = S <$> traverse f n <*> f a
+
+-- 7
+
+data Tree a
+    = Empty
+    | Leaf a
+    | Node (Tree a) a (Tree a)
+    deriving (Eq, Show)
+
+instance Functor Tree where
+    fmap _ Empty = Empty
+    fmap f (Leaf a) = Leaf $ f a
+    fmap f (Node ta a tb) = Node (fmap f ta) (f a) (fmap f tb)
+
+instance Foldable Tree where
+    foldMap _ Empty = mempty
+    foldMap f (Leaf a) = f a
+    foldMap f (Node ta a tb) = foldMap f ta <> f a <> foldMap f tb
+
+    foldr _ b Empty = b
+    foldr f b (Leaf a) = f a b
+    foldr f b (Node ta a tb) = foldr f (f a (foldr f b ta)) tb
+
+instance Traversable Tree where
+    traverse _ Empty = pure Empty
+    traverse f (Leaf a) = Leaf <$> f a
+    traverse f (Node ta a tb) = Node <$> traverse f ta <*> f a <*> traverse f tb
