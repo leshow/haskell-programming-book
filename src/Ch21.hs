@@ -3,6 +3,7 @@
 
 module Ch21 where
 
+import           Data.Monoid              ((<>))
 import           Test.QuickCheck
 import           Test.QuickCheck.Checkers
 import           Test.QuickCheck.Classes
@@ -60,12 +61,16 @@ type T1 = Identity
 type T2 = Constant Int
 type T3 = Optional
 type T4 = List
+type T5 = Three Int Int
+type T6 = Three' Int
 
 run = do
     quickBatch (traversable (undefined :: T1 (Int, Int, [Int])))
     quickBatch (traversable (undefined :: T2 (Int, Int, [Int])))
     quickBatch (traversable (undefined :: T3 (Int, Int, [Int])))
     quickBatch (traversable (undefined :: T4 (Int, Int, [Int])))
+    quickBatch (traversable (undefined :: T5 (Int, Int, [Int])))
+    quickBatch (traversable (undefined :: T6 (Int, Int, [Int])))        
 
 -- 1
 newtype Identity a = Identity a
@@ -158,6 +163,7 @@ instance Eq a => EqProp (List a) where
 instance Functor List where
     fmap _ Nil         = Nil
     fmap f (Cons a fa) = Cons (f a) (fmap f fa)
+
 instance Monoid (List a) where
     mempty = Nil
     mappend Nil a          = a
@@ -179,3 +185,50 @@ instance Traversable List where
     traverse f (Cons a ls) = Cons <$> f a <*> traverse f ls
 
 -- 4
+
+data Three a b c = Three a b c deriving (Eq, Show)
+
+instance (Arbitrary a, Arbitrary b, Arbitrary c) => Arbitrary (Three a b c) where
+    arbitrary = do
+        a <- arbitrary
+        b <- arbitrary
+        c <- arbitrary
+        return $ Three a b c
+
+instance (Eq a, Eq b, Eq c) => EqProp (Three a b c) where
+    (=-=) = eq
+
+instance Functor (Three a b) where
+    fmap f (Three a b c) = Three a b $ f c
+
+instance (Monoid a, Monoid b) => Applicative (Three a b) where
+    pure = Three mempty mempty
+    Three fa fb fc <*> Three a b c = Three (fa <> a) (fb <> b) (fc c)
+
+instance Foldable (Three a b) where
+    foldMap f (Three _ _ c) = f c
+
+instance Traversable (Three a b) where
+    traverse f (Three a b c) = (Three a b) <$> f c
+
+-- 5
+
+data Three' a b = Three' a b b deriving (Eq, Show)
+
+instance (Arbitrary a, Arbitrary b) => Arbitrary (Three' a b) where
+    arbitrary = do
+        a <- arbitrary
+        b <- arbitrary
+        return $ Three' a b b
+
+instance (Eq a, Eq b) => EqProp (Three' a b) where
+    (=-=) = eq
+
+instance Functor (Three' a) where
+    fmap f (Three' a b b') = Three' a (f b) (f b')
+
+instance Foldable (Three' a) where
+    foldMap f (Three' a b b') = f b'
+
+instance Traversable (Three' a) where
+    traverse f (Three' a b b') = Three' a <$> f b <*> f b'
