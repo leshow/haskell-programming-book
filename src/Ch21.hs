@@ -59,11 +59,13 @@ instance Traversable (Either' a) where
 type T1 = Identity
 type T2 = Constant Int
 type T3 = Optional
+type T4 = List
 
 run = do
     quickBatch (traversable (undefined :: T1 (Int, Int, [Int])))
     quickBatch (traversable (undefined :: T2 (Int, Int, [Int])))
     quickBatch (traversable (undefined :: T3 (Int, Int, [Int])))
+    quickBatch (traversable (undefined :: T4 (Int, Int, [Int])))
 
 -- 1
 newtype Identity a = Identity a
@@ -136,5 +138,44 @@ instance Applicative Optional where
     Nada <*> fa = Nada
 
 instance Foldable Optional where
-    foldMap _ Nada = mempty
+    foldMap _ Nada    = mempty
     foldMap f (Yep a) = f a
+
+instance Traversable Optional where
+    traverse _ Nada    = pure Nada
+    traverse f (Yep a) = Yep <$> f a
+
+-- 3
+
+data List a = Nil | Cons a (List a) deriving (Eq, Show)
+
+instance Arbitrary a => Arbitrary (List a) where
+    arbitrary = frequency [(5, Cons <$> arbitrary <*> arbitrary), (1, return Nil)]
+
+instance Eq a => EqProp (List a) where
+    (=-=) = eq
+
+instance Functor List where
+    fmap _ Nil         = Nil
+    fmap f (Cons a fa) = Cons (f a) (fmap f fa)
+instance Monoid (List a) where
+    mempty = Nil
+    mappend Nil a          = a
+    mappend a Nil          = a
+    mappend (Cons a la) lb = Cons a (la `mappend` lb)
+
+instance Applicative List where
+    pure a = Cons a Nil
+    Nil <*> _ = Nil
+    _ <*> Nil = Nil
+    Cons f fa <*> ls = mappend (fmap f ls) (fa <*> ls)
+
+instance Foldable List where
+    foldMap _ Nil         = mempty
+    foldMap f (Cons a ls) = f a `mappend` foldMap f ls
+
+instance Traversable List where
+    traverse _ Nil         = pure Nil
+    traverse f (Cons a ls) = Cons <$> f a <*> traverse f ls
+
+-- 4
