@@ -1,5 +1,11 @@
+{-# LANGUAGE KindSignatures #-}
+{-# LANGUAGE RankNTypes     #-}
+
 module Ch21 where
 
+import           Test.QuickCheck
+import           Test.QuickCheck.Checkers
+import           Test.QuickCheck.Classes
 -- Traversable is a superclass of Foldable that defines a type which
 -- maps each element of a structure to an action, and evaluates actions from left
 -- to right.
@@ -18,33 +24,117 @@ module Ch21 where
 -- fmap sum $ sequenceA [Just 1, Just 2, Nothing]
 -- Nothing
 
+data Either' a b = Left' a | Right' b deriving (Eq, Show, Ord)
 
--- mapM is just traverse -but only for lists, a more general version
+instance Functor (Either' a) where
+    fmap f (Left' a)  = Left' a
+    fmap f (Right' b) = Right' $ f b
 
--- traversable use: when you need to flip two type constructors around, or map something then flip them
+instance Applicative (Either' a) where
+    pure = Right'
+    Right' f <*> a = f <$> a
+    Left' f <*> _ = Left' f
+
+instance Foldable (Either' a) where
+    foldMap _ (Left' _)  = mempty
+    foldMap f (Right' y) = f y
+
+    foldr _ z (Left' _)  = z
+    foldr f z (Right' b) = f b z
+
+instance Traversable (Either' a) where
+    traverse _ (Left' fa)  = pure (Left' fa)
+    traverse f (Right' fa) = Right' <$> f fa -- notice how the type flips here
+    sequenceA (Right' fa) = Right' <$> fa
+    sequenceA (Left' fa)  = pure (Left' fa)
+-- traversable laws
+-- 1. naturality
+-- t . traverse f = traverse (t . f)
+-- 2. identity
+-- traverse Identity = Identity    is another way of saying traversable instance cant add or inject any structure/effects
+-- 3. composition
+-- traverse (Compose . fmap g . f) = Compose . fmap (traverse g) . traverse f
 
 
-data Result a b
-    = Error a
-    | Ok b
-    deriving (Eq, Ord, Show)
+type T1 = Identity
+type T2 = Constant Int
+type T3 = Optional
 
-instance Functor (Result a) where
-    fmap _ (Error a) = Error a
-    fmap f (Ok b)    = Ok (f b)
+run = do
+    quickBatch (traversable (undefined :: T1 (Int, Int, [Int])))
+    quickBatch (traversable (undefined :: T2 (Int, Int, [Int])))
+    quickBatch (traversable (undefined :: T3 (Int, Int, [Int])))
 
-instance Applicative (Result a) where
-    pure = Ok
-    Ok f <*> r = fmap f r
-    Error f <*> l = Error f
+-- 1
+newtype Identity a = Identity a
+    deriving (Eq, Show, Ord)
 
-instance Foldable (Result a) where
-    foldMap f (Error e) = mempty
-    foldMap f (Ok a)    = f a
+instance Arbitrary a => Arbitrary (Identity a) where
+    arbitrary = do
+        a <- arbitrary
+        return $ Identity a
 
-    foldr f b (Error e) = b
-    foldr f b (Ok a)    = f a b
+instance Eq a => EqProp (Identity a) where
+    (=-=) = eq
 
-instance Traversable (Result a) where
-    traverse f (Error e) = pure $ Error e
-    traverse f (Ok b)    =  Ok <$> f b
+instance Functor Identity where
+    fmap f (Identity a) = Identity $ f a
+
+instance Applicative Identity where
+    pure = Identity
+    Identity f <*> a = f <$> a
+
+instance Foldable Identity where
+    foldMap f (Identity a) = f a
+
+instance Traversable Identity where
+    traverse f (Identity a) = Identity <$> f a
+
+-- 2
+newtype Constant a b = Constant { getConstant :: a } deriving (Eq, Show)
+
+instance Arbitrary a => Arbitrary (Constant a b) where
+    arbitrary = do
+        a <- arbitrary
+        return $ Constant a
+
+instance Eq a => EqProp (Constant a b) where
+    (=-=) = eq
+
+instance Functor (Constant a) where
+    fmap f (Constant a) = Constant a
+
+instance Monoid a => Applicative (Constant a) where
+    pure a = Constant { getConstant = mempty }
+    Constant a <*> Constant b = Constant { getConstant = a `mappend` b }
+
+instance Foldable (Constant a) where
+    foldMap f (Constant a) = mempty
+
+instance Traversable (Constant a) where
+    traverse f (Constant a) = pure $ Constant a
+
+-- 3
+
+data Optional a = Nada | Yep a deriving (Eq, Show)
+
+instance Arbitrary a => Arbitrary (Optional a) where
+    arbitrary = do
+        a <- arbitrary
+        elements [Nada, Yep a]
+
+instance Eq a => EqProp (Optional a) where
+    (=-=) = eq
+
+instance Functor Optional where
+    fmap _ Nada    = Nada
+    fmap f (Yep a) = Yep $ f a
+
+instance Applicative Optional where
+    pure = Yep
+    (Yep a) <*> fa = a <$> fa
+    Nada <*> fa = Nada
+
+instance Foldable Optional where
+    foldMap _ Nada = mempty
+    foldMap f (Yep a) = f a
