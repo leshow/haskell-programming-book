@@ -142,7 +142,7 @@ instance Functor Optional where
 
 instance Applicative Optional where
     pure = Yep
-    (Yep a) <*> fa = a <$> fa
+    (Yep f) <*> fa = f <$> fa
     Nada <*> fa = Nada
 
 instance Foldable Optional where
@@ -267,7 +267,7 @@ data Tree a
 
 instance Functor Tree where
     fmap _ Empty = Empty
-    fmap f (Leaf a) = Leaf $ f a
+    fmap f (Leaf a) = Leaf (f a)
     fmap f (Node ta a tb) = Node (fmap f ta) (f a) (fmap f tb)
 
 instance Foldable Tree where
