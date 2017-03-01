@@ -39,3 +39,6 @@ tupled' = do
 
 tupled'' :: String -> (String, String)
 tupled'' = (,) <$> cap <*> rev
+
+tupled''' :: String -> (String, String)
+tupled''' = rev <$> cap >>= (,)
