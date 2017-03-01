@@ -182,7 +182,13 @@ instance Applicative List where
 instance Foldable List where
     foldMap _ Nil         = mempty
     foldMap f (Cons a ls) = f a `mappend` foldMap f ls
-
+    -- just for fun
+    foldr f b Nil         = b
+    foldr f b (Cons a ls) = f a (foldr f b ls)
+    -- little bit of practice
+    foldl f b Nil         = b
+    foldl f b (Cons a ls) = foldl f (f b a) ls
+    
 instance Traversable List where
     traverse _ Nil         = pure Nil
     traverse f (Cons a ls) = Cons <$> f a <*> traverse f ls
