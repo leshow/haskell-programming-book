@@ -42,3 +42,10 @@ tupled'' = (,) <$> cap <*> rev
 
 tupled''' :: String -> (String, String)
 tupled''' = rev <$> cap >>= (,)
+
+
+newtype Reader r a = Reader { runReader :: r -> a } -- r is the type we're 'reading' and a is the result type
+
+instance Functor (Reader r) where
+    -- fmap :: (a -> b) -> Reader r a -> Reader r b
+    fmap f (Reader ra) = Reader $ \r -> f (ra r)
