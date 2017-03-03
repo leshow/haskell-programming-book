@@ -19,7 +19,7 @@ duwop :: Integer -> Integer
 duwop = liftA2 (+) boop doop
 
 cap :: String -> String
-cap = map toUpper
+cap = fmap toUpper
 
 rev :: String -> String
 rev = reverse
