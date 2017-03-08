@@ -185,3 +185,22 @@ summed = uncurry (+)
 
 bolt :: Integer -> Bool
 bolt = (&&) <$> (>3) <*> (<8) -- liftA2 (&&) (>3) (<8)
+
+rbolt :: Reader Integer Bool
+rbolt = (&&) <$> Reader (>3) <*> Reader (<8)
+
+rrbolt :: Integer -> Bool
+rrbolt = runReader rbolt
+
+-- fromMaybe :: a -> Maybe a -> a
+-- fromMaybe is like unwrap_or(a) in Rust
+
+run :: IO ()
+run = do
+    print $ sequenceA [Just 3, Just 2, Just 1] -- Just [1,2,3]
+    print $ sequenceA [x,y]
+    print $ sequenceA [xs,ys] -- Just [6,9]
+    print $ summed <$> ((,) <$> xs <*> ys)  -- Just 15
+    print $ fmap summed ((,) <$> xs <*> zs) -- Nothing
+    print $ bolt 7              -- True
+    print $ fmap bolt z         -- [True, False, False]
