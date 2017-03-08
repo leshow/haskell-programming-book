@@ -162,7 +162,7 @@ xs :: Maybe Integer
 xs = lookup 3 $ zip x y
 
 ys :: Maybe Integer
-ys = lookup 7 $ zip y z
+ys = lookup 6 $ zip y z
 
 zs :: Maybe Integer
 zs = lookup 4 $ zip x y
@@ -172,9 +172,16 @@ z' n = lookup n $ zip x y
 
 x1 :: Maybe (Integer, Integer)
 x1 = liftA2 (,) xs ys
+
 -- how bout a lil fmap + mr pointy
 x2 :: Maybe (Integer, Integer)
 x2 = (,) <$> ys <*> zs
 
 x3 :: Integer -> Maybe (Integer, Integer)
 x3 n = (,) <$> z' n <*> z' n -- liftA2 (,) (z' n) (z' n)
+
+summed :: Num c => (c,c) -> c
+summed = uncurry (+)
+
+bolt :: Integer -> Bool
+bolt = (&&) <$> (>3) <*> (<8) -- liftA2 (&&) (>3) (<8)
