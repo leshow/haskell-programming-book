@@ -5,6 +5,7 @@ module Ch22 where
 
 import           Control.Applicative
 import           Data.Char
+import           Data.Maybe
 import           Data.Monoid         ((<>))
 
 boop = (*2)
@@ -41,10 +42,11 @@ duwop = liftA2 (+) boop doop
 -- 2
     (.) :: (b -> c) -> (a -> b) -> (a -> c)
     fmap :: (b -> c) -> ((->) a) b -> ((->) a)
--- 2
+-- 3
     (.) :: (b -> c) -> (a -> b) -> (a -> c)
     fmap :: (b -> c) -> (a -> b) -> (a -> c)
 -}
+
 cap :: String -> String
 cap = fmap toUpper
 
@@ -150,3 +152,29 @@ getDogRM'' = do
     name <- Reader dogName
     address <- Reader address
     return $ Dog name address
+
+
+x = [1,2,3]
+y = [4,5,6]
+z = [7,8,9]
+
+xs :: Maybe Integer
+xs = lookup 3 $ zip x y
+
+ys :: Maybe Integer
+ys = lookup 7 $ zip y z
+
+zs :: Maybe Integer
+zs = lookup 4 $ zip x y
+
+z' :: Integer -> Maybe Integer
+z' n = lookup n $ zip x y
+
+x1 :: Maybe (Integer, Integer)
+x1 = liftA2 (,) xs ys
+-- how bout a lil fmap + mr pointy
+x2 :: Maybe (Integer, Integer)
+x2 = (,) <$> ys <*> zs
+
+x3 :: Integer -> Maybe (Integer, Integer)
+x3 n = (,) <$> z' n <*> z' n -- liftA2 (,) (z' n) (z' n)
