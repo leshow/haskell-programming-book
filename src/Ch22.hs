@@ -5,6 +5,7 @@ module Ch22 where
 
 import           Control.Applicative
 import           Data.Char
+import           Data.Monoid         ((<>))
 
 boop = (*2)
 doop = (+10)
@@ -18,6 +19,32 @@ bbop = (+) <$> boop <*> doop
 duwop :: Integer -> Integer
 duwop = liftA2 (+) boop doop
 
+-- fn composition is equivalent to application in this scenario
+-- (+) . (*2) == (+) <$> (*2)
+
+{-
+    instance Functor ((->) r) where
+        fmap = (.)
+
+    (->) takes 2 arguments and therefore has kind * -> * -> *
+    so we know we need to apply an argument to get a Functor.
+    With the type:
+        data (->) r b
+
+    you lift over the (->) r and only transform the b value. (Like we would do with Either a b)
+    `a` is conventionally called r for Reader.
+
+    ((->) r) is the same as (r ->) and is r -> b when fully applied
+-- 1
+    (.) :: (b -> c) -> (a -> b) -> (a -> c)
+    fmap :: (b -> c) -> f b -> f c
+-- 2
+    (.) :: (b -> c) -> (a -> b) -> (a -> c)
+    fmap :: (b -> c) -> ((->) a) b -> ((->) a)
+-- 2
+    (.) :: (b -> c) -> (a -> b) -> (a -> c)
+    fmap :: (b -> c) -> (a -> b) -> (a -> c)
+-}
 cap :: String -> String
 cap = fmap toUpper
 
