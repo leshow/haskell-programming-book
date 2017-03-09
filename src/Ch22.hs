@@ -203,4 +203,15 @@ run = do
     print $ summed <$> ((,) <$> xs <*> ys)  -- Just 15
     print $ fmap summed ((,) <$> xs <*> zs) -- Nothing
     print $ bolt 7              -- True
-    print $ fmap bolt z         -- [True, False, False]
+    print $ fmap bolt z        -- [True, False, False]
+    print $ sequenceA [(>3), (<8), even] 7
+    print $ foldr (&&) True $ sequA 7
+    print $ and $ sequA 7
+    --print $ fromMaybe (s' sequA) 8
+    print $ bolt $ fromMaybe 7 ys
+
+
+sequA :: Integral a => a -> [Bool]
+sequA m = sequenceA [(<3), (>8), even] m
+
+s' = summed <$> ((,) <$> xs <*> ys)
