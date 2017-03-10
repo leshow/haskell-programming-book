@@ -25,6 +25,7 @@ library
                      , QuickCheck
                      , checkers
                      , parallel
+                     , random
   default-language:    Haskell2010
 
  -- executable haskell-programming

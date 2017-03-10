@@ -4,9 +4,10 @@ module Ch22 where
 
 
 import           Control.Applicative
+import           Data.Bool
 import           Data.Char
 import           Data.Maybe
-import           Data.Monoid         ((<>))
+import           Data.Monoid
 
 boop = (*2)
 doop = (+10)
@@ -206,8 +207,9 @@ run = do
     print $ fmap bolt z        -- [True, False, False]
     print $ sequenceA [(>3), (<8), even] 7
     print $ foldr (&&) True $ sequA 7
+    print $ getAll . foldMap All $ sequA 7
     print $ and $ sequA 7
-    --print $ fromMaybe (s' sequA) 8
+    print $ sequA $ fromMaybe 2 s'
     print $ bolt $ fromMaybe 7 ys
 
 
