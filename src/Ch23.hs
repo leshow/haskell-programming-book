@@ -121,13 +121,14 @@ runfizz :: IO ()
 runfizz = mapM_ (\x -> putStrLn $ fizzbuzz x) [1..100] -- traverse
 
 fizzbuzzlist :: [Integer] -> [String]
-fizzbuzzlist list = execState (traverse addResult list) []
+fizzbuzzlist list = execState (mapM_ addResult list) []
 
 addResult :: Integer -> State [String] ()
 addResult n = do
     xs <- get
     let result = fizzbuzz n
     put (result : xs)
+
 
 
 
