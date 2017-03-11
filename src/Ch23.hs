@@ -109,3 +109,26 @@ instance Monad (Moi s) where
         let (a, s') = f s
             Moi a' = g a
         in a' s')
+
+
+fizzbuzz :: Integer -> String
+fizzbuzz n  | n `mod` 15 == 0   = "Fizzbuzz"
+            | n `mod` 5 == 0    = "Buzz"
+            | n `mod` 3 == 0    = "Fizz"
+            | otherwise         = show n
+
+runfizz :: IO ()
+runfizz = mapM_ (\x -> putStrLn $ fizzbuzz x) [1..100] -- traverse
+
+fizzbuzzlist :: [Integer] -> [String]
+fizzbuzzlist list = execState (traverse addResult list) []
+
+addResult :: Integer -> State [String] ()
+addResult n = do
+    xs <- get
+    let result = fizzbuzz n
+    put (result : xs)
+
+
+
+
