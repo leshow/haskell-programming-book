@@ -1,3 +1,5 @@
+{-# LANGUAGE InstanceSigs #-}
+
 module Ch23 where
 
 -- state is appropriate when you want to express your program in term so of
@@ -82,3 +84,28 @@ go sum count lim gen
     | otherwise =
         let (die, nextGen) = randomR (1,6) gen
         in go (sum+die) (count+1) lim nextGen
+
+newtype Moi s a = Moi { runMoi :: s -> (a, s) }
+
+instance Functor (Moi s) where
+    fmap :: (a -> b) -> Moi s a -> Moi s b
+    fmap f (Moi g) = Moi (\s -> let (a,b) = g s in (f a, b))
+
+instance Applicative (Moi s) where
+    pure :: a -> Moi s a
+    pure a = Moi $ \s -> (a, s)
+
+    (<*>) :: Moi s (a -> b) -> Moi s a -> Moi s b
+    Moi f <*> Moi g = Moi (\s ->
+        let (fab,s') = f s
+            (a, s'') = g s'
+        in  (fab a, s''))
+
+instance Monad (Moi s) where
+    return = pure
+
+    (>>=) :: Moi s a -> (a -> Moi s b) -> Moi s b
+    Moi f >>= g = Moi (\s ->
+        let (a, s') = f s
+            Moi a' = g a
+        in a' s')
