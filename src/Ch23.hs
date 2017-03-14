@@ -5,11 +5,12 @@ module Ch23 where
 -- state is appropriate when you want to express your program in term so of
 -- values that can potentially vary each evaluation step
 
-import           Control.Applicative       (liftA3)
-import           Control.Exception         (catch)
-import           Control.Monad             (replicateM)
-import           Control.Monad.Trans.State
-import qualified Data.DList                as DL
+import           Control.Applicative            (liftA3)
+import           Control.Exception              (catch)
+import           Control.Monad                  (replicateM)
+import           Control.Monad.Trans.State.Lazy (State (..))
+import qualified Control.Monad.Trans.State.Lazy as S
+import qualified Data.DList                     as DL
 import           System.Random
 
 data Die =
@@ -33,13 +34,13 @@ rollDieThreeTimes = do
 -- newtype State s a = State { runState :: s -> (a, s) }
 
 rollDie :: State StdGen Die
-rollDie = state $ do
+rollDie = S.state $ do
     (n, s) <- randomR (1, 6)
     return (intToDie n, s)
 
 -- or less verbosely,
 rollDie' :: State StdGen Die
-rollDie' = intToDie <$> state (randomR (1,6))
+rollDie' = intToDie <$> S.state (randomR (1,6))
 
 rollDieThrice :: State StdGen (Die, Die, Die)
 rollDieThrice = liftA3 (,,) rollDie rollDie rollDie
@@ -122,13 +123,13 @@ runfizz :: IO ()
 runfizz = mapM_ (\x -> putStrLn $ fizzbuzz x) [1..100] -- traverse
 
 fizzbuzzlist :: [Integer] -> [String]
-fizzbuzzlist list = execState (mapM_ addResult list) []
+fizzbuzzlist list = S.execState (mapM_ addResult list) []
 
 addResult :: Integer -> State [String] () -- note State is an alias of StateT that we imported earlier
 addResult n = do
-    xs <- get
+    xs <- S.get
     let result = fizzbuzz n
-    put (result : xs)
+    S.put (result : xs)
 
 runrev :: IO ()
 runrev = mapM_ putStrLn $ reverse $ fizzbuzzlist [1..100]
@@ -136,16 +137,13 @@ runrev = mapM_ putStrLn $ reverse $ fizzbuzzlist [1..100]
 
 -- with DList
 
+fizzbuzzdlist :: [Integer] -> DL.DList String
+fizzbuzzdlist list = S.execState (mapM_ addDResult list) DL.empty
 
-fizzbuzzdlist :: [Integer] -> [String]
-fizzbuzzdlist list =
-    let dlist = execState (mapM_ addDResult list) DL.empty
-    in DL.apply dlist [] -- convert back to list
-
-addDResult :: Integer -> State [String] () -- note State is an alias of StateT that we imported earlier
+addDResult :: Integer -> State (DL.DList String) () -- note State is an alias of StateT that we imported earlier
 addDResult n = do
-    xs <- get
+    xs <- S.get
     let result = fizzbuzz n
-    put (DL.snoc xs result) -- snoc adds to end
+    S.put (DL.snoc xs result) -- snoc adds to end
 
 runDL = mapM_ putStrLn $ fizzbuzzdlist [1..100]
