@@ -9,6 +9,7 @@ import           Control.Applicative       (liftA3)
 import           Control.Exception         (catch)
 import           Control.Monad             (replicateM)
 import           Control.Monad.Trans.State
+import qualified Data.DList                as DL
 import           System.Random
 
 data Die =
@@ -89,7 +90,7 @@ newtype Moi s a = Moi { runMoi :: s -> (a, s) }
 
 instance Functor (Moi s) where
     fmap :: (a -> b) -> Moi s a -> Moi s b
-    fmap f (Moi g) = Moi (\s -> let (a,b) = g s in (f a, b))
+    fmap f (Moi g) = Moi (\s -> let (a, b) = g s in (f a, b))
 
 instance Applicative (Moi s) where
     pure :: a -> Moi s a
@@ -97,7 +98,7 @@ instance Applicative (Moi s) where
 
     (<*>) :: Moi s (a -> b) -> Moi s a -> Moi s b
     Moi f <*> Moi g = Moi (\s ->
-        let (fab,s') = f s
+        let (fab, s') = f s
             (a, s'') = g s'
         in  (fab a, s''))
 
@@ -123,13 +124,28 @@ runfizz = mapM_ (\x -> putStrLn $ fizzbuzz x) [1..100] -- traverse
 fizzbuzzlist :: [Integer] -> [String]
 fizzbuzzlist list = execState (mapM_ addResult list) []
 
-addResult :: Integer -> State [String] ()
+addResult :: Integer -> State [String] () -- note State is an alias of StateT that we imported earlier
 addResult n = do
     xs <- get
     let result = fizzbuzz n
     put (result : xs)
 
+runrev :: IO ()
+runrev = mapM_ putStrLn $ reverse $ fizzbuzzlist [1..100]
 
 
+-- with DList
 
 
+fizzbuzzdlist :: [Integer] -> [String]
+fizzbuzzdlist list =
+    let dlist = execState (mapM_ addDResult list) DL.empty
+    in DL.apply dlist [] -- convert back to list
+
+addDResult :: Integer -> State [String] () -- note State is an alias of StateT that we imported earlier
+addDResult n = do
+    xs <- get
+    let result = fizzbuzz n
+    put (DL.snoc xs result) -- snoc adds to end
+
+runDL = mapM_ putStrLn $ fizzbuzzdlist [1..100]
