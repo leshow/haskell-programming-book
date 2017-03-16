@@ -1,7 +1,7 @@
 Haskell Programming: from first principles
 ---
 
-These are my solutions to the [book](haskellbook.com). In general all of the solutions were put in `src/ChXX.hs`. Some of the solutions per chapter were split up so I didn't have overlapping implementations.
+These are my solutions to the [book](https://haskellbook.com). In general all of the solutions were put in `src/ChXX.hs`. Some of the solutions per chapter were split up so I didn't have overlapping implementations.
 
 The projects in the book which are separate applications all have their own subfolders, such as `hangman` or `morse`.
 
