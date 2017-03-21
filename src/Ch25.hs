@@ -41,8 +41,53 @@ data Deux a b = Deux a b
 
 instance Bifunctor Deux where
     bimap f g (Deux a b) = Deux (f a) (g b)
+    first f (Deux a b) = Deux (f a) b
+    second f (Deux a b) = Deux a (f b)
 
 data Const a b = Const a
 
 instance Bifunctor Const where
     bimap f g (Const a) = Const (f a)
+    first f (Const a) = Const (f a)
+    second f (Const a) = Const a
+
+data Drei a b c = Drei a b c
+
+instance Bifunctor (Drei a) where
+    bimap f g (Drei a b c) = Drei a (f b) (g c)
+    first f (Drei a b c) = Drei a (f b) c
+    second f (Drei a b c) = Drei a b (f c)
+
+
+data SuperDrei a b c = SuperDrei a b
+
+instance Bifunctor (SuperDrei a) where
+    bimap f g (SuperDrei a b) = SuperDrei a (f b)
+    first f (SuperDrei a b) = SuperDrei a (f b)
+    second f (SuperDrei a b) = SuperDrei a b
+
+data SemiDrei a b c = SemiDrei a
+
+instance Bifunctor (SemiDrei a) where
+    bimap f g (SemiDrei a) = SemiDrei a
+    first f (SemiDrei a) = SemiDrei a
+    second f (SemiDrei a) = SemiDrei a
+
+data Quadriceps a b c d = Quadriceps a b c d
+
+instance Bifunctor (Quadriceps a b) where
+    bimap f g (Quadriceps a b c d) = Quadriceps a b (f c) (g d)
+    first f (Quadriceps a b c d) = Quadriceps a b (f c) d
+    second f (Quadriceps a b c d) = Quadriceps a b c (f d)
+
+data Either' a b = Left' a | Right' b
+
+instance Bifunctor Either' where
+    bimap f g (Left' a) = Left' (f a)
+    bimap f g (Right' b) = Right' (g b)
+
+    first f (Left' a) = Left' (f a)
+    first f (Right' b) = Right' b
+
+    second f (Left' a) = Left' a
+    second f (Right' b) = Right' (f b)
