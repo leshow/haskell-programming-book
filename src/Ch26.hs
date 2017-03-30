@@ -1,4 +1,5 @@
 {-# LANGUAGE InstanceSigs #-}
+{-# LANGUAGE LambdaCase   #-}
 
 module Ch26 where
 
@@ -39,3 +40,32 @@ instance Monad m => Monad (EitherT e m) where
             Left e  -> return $ Left e
             Right a -> runEitherT $ f a
 
+
+swapEither :: Either e a -> Either a e
+swapEither (Left e)  = Right e
+swapEither (Right a) = Left a
+
+swapEitherT :: Functor m => EitherT e m a -> EitherT a m e
+swapEitherT (EitherT ema) = EitherT $ swapEither <$> ema
+
+swapEitherT' :: Monad m => EitherT e m a -> EitherT a m e
+swapEitherT' (EitherT ema) = EitherT $ do
+    u <- ema
+    return $ swapEither u
+
+
+either' :: (a -> c) -> (b -> c) -> Either a b -> c
+either' f _ (Left a)  = f a
+either' _ g (Right b) = g b
+
+eitherT :: Monad m => (a -> m c) -> (b -> m c) -> EitherT a m b -> m c
+eitherT f g (EitherT amb) = amb >>= \case
+    Left e -> f e
+    Right a -> g a
+
+
+    -- do
+    --     u <- amb
+    --     case u of
+    --         Left e  -> f e
+    --         Right a -> g a
