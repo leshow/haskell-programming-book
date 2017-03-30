@@ -30,6 +30,7 @@ library
                      , dlist
                      , trifecta
                      , parsers
+                     , scotty
   default-language:    Haskell2010
 
  -- executable haskell-programming
