@@ -91,3 +91,5 @@ instance Bifunctor Either' where
 
     second f (Left' a) = Left' a
     second f (Right' b) = Right' (f b)
+
+    
