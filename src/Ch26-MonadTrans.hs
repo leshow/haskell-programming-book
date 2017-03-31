@@ -1,4 +1,7 @@
-{-# LANGUAGE InstanceSigs #-}
+{-# LANGUAGE FlexibleContexts     #-}
+{-# LANGUAGE InstanceSigs         #-}
+{-# LANGUAGE UndecidableInstances #-}
+
 module MonadTrans where
 
 
@@ -31,11 +34,30 @@ instance MonadTrans (ReaderT r) where
 
 instance MonadTrans (EitherT e) where
     lift = EitherT . liftM Right -- liftM :: Monad m => (a -> r) -> m a -> m r -- is the same as fmap, but in Monad
--- liftIO lifts to the IO monad, and can be a variable number of lifts, i.e. lift . lift
--- the monad we're using it in must be an instance of MonadIO for that to work, though
 
 instance MonadTrans (StateT s) where
     lift :: Monad m => m a -> StateT s m a
     lift ma = StateT $ \s -> do
         a <- ma
         return (a, s)
+
+-- liftIO lifts to the IO monad, and can be a variable number of lifts, i.e. lift . lift
+-- the monad we're using it in must be an instance of MonadIO for that to work, though
+-- resides in Control.Monad.IO.Class
+
+
+instance (MonadIO m, Monad (IdentityT m)) => MonadIO (IdentityT m) where
+    liftIO = IdentityT . liftIO
+
+instance (MonadIO m, Monad (EitherT e m)) => MonadIO (EitherT e m) where
+    liftIO = lift . liftIO
+
+instance (MonadIO m, Monad (MaybeT m)) => MonadIO (MaybeT m) where
+    liftIO = lift . liftIO
+
+instance (MonadIO m, Monad (ReaderT r m)) => MonadIO (ReaderT r m) where
+    liftIO = lift . liftIO
+
+instance (MonadIO m, Monad (StateT r m)) => MonadIO (StateT r m) where
+    liftIO = lift . liftIO
+
