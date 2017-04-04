@@ -83,11 +83,14 @@ instance Bifunctor (Quadriceps a b) where
 data Either' a b = Left' a | Right' b
 
 instance Bifunctor Either' where
-    bimap f g (Left' a) = Left' (f a)
+    bimap f g (Left' a)  = Left' (f a)
     bimap f g (Right' b) = Right' (g b)
 
-    first f (Left' a) = Left' (f a)
+    first f (Left' a)  = Left' (f a)
     first f (Right' b) = Right' b
 
-    second f (Left' a) = Left' a
+    second f (Left' a)  = Left' a
     second f (Right' b) = Right' (f b)
+    second f (Right' b) = Right' (f b)
+
+
