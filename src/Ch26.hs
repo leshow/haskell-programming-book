@@ -3,7 +3,9 @@
 
 module Ch26 where
 
-import           Data.Bifunctor (bimap)
+import           Control.Monad             (liftM)
+import           Control.Monad.Trans.Class
+import           Data.Bifunctor            (bimap)
 
 newtype MaybeT m a = MaybeT { runMaybeT :: m (Maybe a) }
 
@@ -123,3 +125,13 @@ instance Monad m => Monad (StateT s m) where
 
 -- when we have something like type Type a = One -> Maybe (a, Two)
 -- we can wewrite it like type Type = StateT One Two
+
+
+instance MonadTrans (EitherT e) where
+    lift m = EitherT (liftM Right m)
+
+
+instance MonadTrans (StateT s) where
+    lift m = StateT $ \s -> do
+        x <- m
+        return (x,s)
