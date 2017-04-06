@@ -151,8 +151,8 @@ getD = runReader getDogRM'
 getDogRM'' :: Reader Person Dog
 getDogRM'' = do
     name <- Reader dogName
-    address <- Reader address
-    return $ Dog name address
+    addy <- Reader address
+    return $ Dog name addy
 
 
 x = [1,2,3]

@@ -25,9 +25,7 @@ data Game = Game {
 }
 
 oddOrEven :: Int -> Type
-oddOrEven r = case r of
-    0 -> Evens
-    1 -> Odds
+oddOrEven r = if even r then Evens else Odds
 
 initial :: Type -> Type -> Game
 initial hum comp = Game hum 0 comp 0 0
@@ -51,7 +49,7 @@ rollDie = do
     game@Game{..} <- get
     humanRoll <- liftIO getLine
     liftIO $ putStrLn "Guess accepted."
-    pcRoll <- liftIO $ randomRIO (1,2)
+    pcRoll <- liftIO $ randomRIO (0,1)
     let final = (read humanRoll :: Int) + pcRoll
         typeOf = oddOrEven final
         winner = typeOf == human
