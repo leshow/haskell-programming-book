@@ -28,13 +28,18 @@ data Game = Game {
     humanScore :: Int
     , pcScore  :: Int
     , rounds   :: Int
-} deriving (Eq, Show)
+    , turns    :: [Round]
+} deriving Show
 
 data Config = Config {
     human :: Type
     , pc  :: Type
-} deriving (Eq, Show)
+} deriving Show
 
+data Round = Round {
+    p1   :: Type
+    , p2 :: Type
+} deriving Show
 
 
 newRand :: IO Int
@@ -44,7 +49,7 @@ oddOrEven :: Int -> Type
 oddOrEven r = if even r then Evens else Odds
 
 initialGame :: Game
-initialGame = Game 0 0 0
+initialGame = Game 0 0 0 []
 
 initConfig :: Type -> Type -> Config
 initConfig hum comp = Config hum comp
@@ -55,11 +60,11 @@ getConfig = do
     person <- oddOrEven <$> newRand
     return $ initConfig person computer
 
-humanInc :: Game -> Game
-humanInc (Game hs ps r) = Game (hs+1) ps (r+1)
+humanInc :: Game -> Round -> Game
+humanInc g r = g { humanScore = humanScore g + 1, rounds = rounds g + 1, turns = r : turns g }
 
-pcInc :: Game -> Game
-pcInc (Game hs ps r) = Game hs (ps+1) (r+1)
+pcInc :: Game -> Round -> Game
+pcInc g r = g { pcScore = pcScore g + 1, rounds = rounds g + 1, turns = r : turns g }
 
 runGame :: Morra ()
 runGame = do
@@ -73,7 +78,8 @@ runGame = do
             let total = num + pcRoll
                 typeOf = oddOrEven total
                 winner = typeOf == human
-                (newGame, title) = if winner then (humanInc game, "human") else (pcInc game, "pc")
+                turn = Round { p1 = oddOrEven num, p2 = oddOrEven pcRoll }
+                (newGame, title) = if winner then (humanInc game turn, "human") else (pcInc game turn, "pc")
             liftIO $ do
                 putStrLn $ if winner then "Winner" else "Loser"
                 putStrLn ("Winner of this round is " <> title <> "!!")
