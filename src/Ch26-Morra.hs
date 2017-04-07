@@ -3,7 +3,7 @@
 
 module Morra where
 
-import           Control.Monad              (forever, when)
+import           Control.Monad              (when)
 import           Control.Monad.IO.Class
 import           Control.Monad.Trans.Class
 import           Control.Monad.Trans.Reader
@@ -15,18 +15,13 @@ import           System.IO
 import           System.Random
 
 
-
 data Type = Odds | Evens deriving (Eq, Show)
 
 data UserAction =
     Roll Int
-    | Exit Char
+    | Cmd Char
     deriving (Eq, Show)
 
-newRand :: IO Int
-newRand = randomRIO (0,1)
-
--- partially applied ReaderT
 type Morra a = ReaderT Config (StateT Game IO) a
 
 data Game = Game {
@@ -39,6 +34,11 @@ data Config = Config {
     human :: Type
     , pc  :: Type
 } deriving (Eq, Show)
+
+
+
+newRand :: IO Int
+newRand = randomRIO (0,1)
 
 oddOrEven :: Int -> Type
 oddOrEven r = if even r then Evens else Odds
@@ -61,43 +61,46 @@ humanInc (Game hs ps r) = Game (hs+1) ps (r+1)
 pcInc :: Game -> Game
 pcInc (Game hs ps r) = Game hs (ps+1) (r+1)
 
-
 runGame :: Morra ()
 runGame = do
     game@Game{..} <- lift get
     Config{..} <- ask
-    humanRoll <- liftIO getInput
-    case humanRoll of
-        Roll humRoll -> do
+    input <- liftIO getInput
+    case input of
+        Roll num -> do
             liftIO $ putStrLn "Guess accepted."
             pcRoll <- liftIO $ randomRIO (0,1)
-            let final = humRoll + pcRoll
-                typeOf = oddOrEven final
+            let total = num + pcRoll
+                typeOf = oddOrEven total
                 winner = typeOf == human
                 (newGame, title) = if winner then (humanInc game, "human") else (pcInc game, "pc")
-            liftIO $ print winner
-            liftIO $ putStrLn ("Winner of this round is " <> title <> "!!")
-            liftIO $ print newGame
+            liftIO $ do
+                putStrLn $ if winner then "Winner" else "Loser"
+                putStrLn ("Winner of this round is " <> title <> "!!")
+                putStrLn (show newGame)
             lift $ put newGame
             runGame
-        Exit c -> do
+        Cmd c -> do
             liftIO $ when (c `elem` "Qq") $ do
                 print game
                 exitSuccess
-
-
+            runGame
 
 getInput :: IO UserAction
 getInput = do
-    putStrLn "Press '1' for Odd '2' for Even, or q for quit"
+    helpText
     c <- getChar
+    putStrLn " "
     return $ getDig c
 
 getDig :: Char -> UserAction
 getDig c
     | isDigit c = Roll (digitToInt c)
-    | isLetter c = Exit c
+    | isLetter c = Cmd c
 
+helpText :: IO ()
+helpText = do
+    putStrLn "Press '1' for Odd '2' for Even, or q for quit"
 
 main :: IO ()
 main = do
