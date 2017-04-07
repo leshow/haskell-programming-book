@@ -6,15 +6,22 @@ module Morra where
 import           Control.Monad              (forever, when)
 import           Control.Monad.IO.Class
 import           Control.Monad.Trans.Class
-import           Control.Monad.Trans.Except
 import           Control.Monad.Trans.Reader
 import           Control.Monad.Trans.State
+import           Data.Char                  (digitToInt, isDigit, isLetter)
 import           Data.Monoid                ((<>))
 import           System.Exit                (exitSuccess)
+import           System.IO
 import           System.Random
-import Data.Char (digitToInt)
+
+
 
 data Type = Odds | Evens deriving (Eq, Show)
+
+data UserAction =
+    Roll Int
+    | Exit Char
+    deriving (Eq, Show)
 
 newRand :: IO Int
 newRand = randomRIO (0,1)
@@ -26,12 +33,12 @@ data Game = Game {
     humanScore :: Int
     , pcScore  :: Int
     , rounds   :: Int
-}
+} deriving (Eq, Show)
 
 data Config = Config {
     human :: Type
     , pc  :: Type
-}
+} deriving (Eq, Show)
 
 oddOrEven :: Int -> Type
 oddOrEven r = if even r then Evens else Odds
@@ -60,27 +67,42 @@ runGame = do
     game@Game{..} <- lift get
     Config{..} <- ask
     humanRoll <- liftIO getInput
-    liftIO $ putStrLn "Guess accepted."
-    pcRoll <- liftIO $ randomRIO (0,1)
-    let final = (read humanRoll :: Int) + pcRoll
-        typeOf = oddOrEven final
-        winner = typeOf == human
-        (newGame, title) = if winner then (humanInc game, "human") else (pcInc game, "pc")
-    liftIO $ print winner
-    liftIO $ putStrLn ("Winner of this round is " <> title <> "!!")
-    lift $ put newGame
-    return ()
+    case humanRoll of
+        Roll humRoll -> do
+            liftIO $ putStrLn "Guess accepted."
+            pcRoll <- liftIO $ randomRIO (0,1)
+            let final = humRoll + pcRoll
+                typeOf = oddOrEven final
+                winner = typeOf == human
+                (newGame, title) = if winner then (humanInc game, "human") else (pcInc game, "pc")
+            liftIO $ print winner
+            liftIO $ putStrLn ("Winner of this round is " <> title <> "!!")
+            liftIO $ print newGame
+            lift $ put newGame
+            runGame
+        Exit c -> do
+            liftIO $ when (c `elem` "Qq") $ do
+                print game
+                exitSuccess
 
-getInput :: IO Char
+
+
+getInput :: IO UserAction
 getInput = do
+    putStrLn "Press '1' for Odd '2' for Even, or q for quit"
     c <- getChar
-    case c of
-        isDigit c -> 
-        isLetter c ->
-       -- _ -> throwE 
+    return $ getDig c
+
+getDig :: Char -> UserAction
+getDig c
+    | isDigit c = Roll (digitToInt c)
+    | isLetter c = Exit c
+
 
 main :: IO ()
 main = do
+    hSetBuffering stdout NoBuffering
     config <- getConfig
     let game = initialGame
-    forever $ runStateT (runReaderT runGame config) game
+    runStateT (runReaderT runGame config) game
+    return ()
