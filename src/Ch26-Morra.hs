@@ -69,7 +69,7 @@ runGame = do
     case input of
         Roll num -> do
             liftIO $ putStrLn "Guess accepted."
-            pcRoll <- liftIO $ randomRIO (0,1)
+            pcRoll <- liftIO $ newRand
             let total = num + pcRoll
                 typeOf = oddOrEven total
                 winner = typeOf == human
