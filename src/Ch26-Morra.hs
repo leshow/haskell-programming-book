@@ -82,9 +82,15 @@ runGame = do
             runGame
         Cmd c -> do
             liftIO $ when (c `elem` "Qq") $ do
-                print game
+                printWinner game
                 exitSuccess
             runGame
+
+printWinner :: Game -> IO ()
+printWinner g@Game{ humanScore = h, pcScore = p } = do
+    if h > p then putStrLn "Humanity wins! We hold off the machines a while longer."
+    else putStrLn "Computer wins!"
+    print g
 
 getInput :: IO UserAction
 getInput = do
