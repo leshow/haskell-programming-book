@@ -46,14 +46,11 @@ oddOrEven r = if even r then Evens else Odds
 initialGame :: Game
 initialGame = Game 0 0 0
 
-initConfig :: Type -> Type -> Config
-initConfig hum comp = Config hum comp
-
 getConfig :: IO Config
 getConfig = do
     computer <- oddOrEven <$> newRand
     person <- oddOrEven <$> newRand
-    return $ initConfig person computer
+    return $ Config person computer
 
 humanInc :: Game -> Game
 humanInc (Game hs ps r) = Game (hs+1) ps (r+1)
@@ -69,7 +66,7 @@ runGame = do
     case input of
         Roll num -> do
             liftIO $ putStrLn "Guess accepted."
-            pcRoll <- liftIO $ newRand
+            pcRoll <- liftIO newRand
             let total = num + pcRoll
                 typeOf = oddOrEven total
                 winner = typeOf == human
@@ -77,7 +74,7 @@ runGame = do
             liftIO $ do
                 putStrLn $ if winner then "Winner" else "Loser"
                 putStrLn ("Winner of this round is " <> title <> "!!")
-                putStrLn (show newGame)
+                print newGame
             lift $ put newGame
             runGame
         Cmd c -> do
@@ -105,8 +102,7 @@ getDig c
     | isLetter c = Cmd c
 
 helpText :: IO ()
-helpText = do
-    putStrLn "Press '1' for Odd '2' for Even, or q for quit"
+helpText = putStrLn "Press '1' for Odd '2' for Even, or q for quit"
 
 main :: IO ()
 main = do
