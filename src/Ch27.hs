@@ -27,3 +27,16 @@
 -- 7.
 -- foldr (flip const) 'z' ['a'..'e']
 -- 'z'
+
+import           Debug.Trace (trace)
+
+inc = (+1)
+
+twice = inc . inc
+
+howManyTimes = inc (trace "eval'd" (1+1)) + twice (trace "eval'd" (1+1))
+
+howManyTimes' = let onePlus = trace "eval'd" (1+1)
+                in inc onePlus + twice onePlus
+
+
