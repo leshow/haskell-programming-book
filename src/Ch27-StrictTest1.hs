@@ -3,6 +3,7 @@ module StrictTest1 where
 
 data List a = Nil | Cons a (List a) deriving Show
 
+-- despite the name this is still lazy
 sTake :: Int -> List a -> List a
 sTake n _
     | n <= 0 = Nil
