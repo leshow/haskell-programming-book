@@ -1,3 +1,5 @@
+{-# LANGUAGE BangPatterns #-}
+
 -- exercises: evaluate
 
 -- 1.
@@ -39,4 +41,64 @@ howManyTimes = inc (trace "eval'd" (1+1)) + twice (trace "eval'd" (1+1))
 howManyTimes' = let onePlus = trace "eval'd" (1+1)
                 in inc onePlus + twice onePlus
 
+
+--
+
+-- 1. let x = 1
+-- :sprint x
+-- x = _
+
+-- 2. let x = ['1']
+-- :sprint x
+-- x = "1"
+
+-- 3. let x = [1]
+-- :sprint x
+-- x = _
+
+-- let x = 1 :: Int
+-- :sprint x
+-- x = 1
+
+-- let f = \x -> x
+-- let x = f 1
+-- :sprint x
+-- x = _
+
+-- let f :: Int -> Int; f = \x -> x
+-- x = f 1
+-- :sprint x
+-- x = _
+
+-- will printing this result in bottom?
+
+-- 1. snd (undefined, 1)
+-- no
+
+-- 2. let x = undefined
+-- let y = x `seq` 1 in snd (x, y)
+-- yes
+
+-- 3. length $ [1..5] ++ undefined
+-- yes
+
+-- 4. length $ [1..5] ++ [undefined]
+-- no
+
+-- const 1 undefined
+-- no
+
+-- const 1 (undefined `seq` 1)
+-- no
+
+-- const undefined 1
+-- yes
+
+-- Make the expr bottom
+
+x = undefined
+y = "blah"
+
+maindo = do
+    print (snd (!x, y))
 
