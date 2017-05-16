@@ -99,6 +99,7 @@ howManyTimes' = let onePlus = trace "eval'd" (1+1)
 x = undefined
 y = "blah"
 
-maindo = do
-    print (snd (!x, y))
+maindo =
+    let !c = x
+    in print (snd (c, y))
 
