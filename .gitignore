@@ -3,3 +3,4 @@ dist/
 foo
 src/*.o
 src/*.hi
+foo.*
