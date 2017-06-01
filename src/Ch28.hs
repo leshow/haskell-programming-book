@@ -39,5 +39,9 @@ main = defaultMain
         $ whnf (myList !?!) 9998
     , bench "compare to nf"
         $ nf (myList !!) 9998
+    , bench "guarded recursion" -- since whnf only goes up to the first data constructor, we only end up evaluating (_ : _)
+        $ whnf (map (+1)) myList  -- so this bench is too lazy
+    , bench "up to nf" -- 150 microsecs on this machine
+        $ nf (map (+1)) myList
     ]
 
