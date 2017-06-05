@@ -33,6 +33,7 @@ library
                      , scotty
                      , criterion
                      , vector
+                     , primitive
   default-language:    Haskell2010
 
  -- executable haskell-programming

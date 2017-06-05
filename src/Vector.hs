@@ -48,4 +48,5 @@ main = defaultMain
     , bench "looptest explicit " $ whnf vfusion 9998
     , bench "slow" $ whnf slow 9998
     , bench "do // at once" $ whnf batchList 9998
+    , bench "batchVec" $ whnf batchList 9998
     ]
