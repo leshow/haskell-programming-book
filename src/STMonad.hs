@@ -5,10 +5,12 @@ module Main where
 import           Control.Monad.ST
 import           Criterion.Main
 import           Data.Foldable               (for_)
-import           Data.STRef                  (modifySTRef, newSTRef, readSTRef)
+import           Data.STRef                  (modifySTRef, newSTRef, readSTRef,
+                                              writeSTRef)
 import qualified Data.Vector                 as V
 import qualified Data.Vector.Generic.Mutable as GM
 import qualified Data.Vector.Mutable         as MV
+import           Prelude                     hiding ((!))
 
 mutableUpdateIO :: Int -> IO (MV.MVector RealWorld Int)
 mutableUpdateIO n = do
@@ -33,7 +35,7 @@ main = defaultMain
     ]
 
 add = runST $ do
-    ref <- newSTRef (0 :: Int)
+    ref <- newSTRef 0
     for_ [1..10] $ \a ->
         modifySTRef ref (+a)
     readSTRef ref
