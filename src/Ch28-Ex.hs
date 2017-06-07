@@ -1,4 +1,4 @@
-module Ch28Ex where
+module Main where
 
 import           Criterion.Main
 import           Text.Show.Functions ()
@@ -18,7 +18,8 @@ empty = DL id -- DL { unDL = id }
 {-# INLINE empty #-}
 
 singleton :: a -> DList a
-singleton x = DL (const [x])
+singleton = DL . (:)
+--singleton x = DL (\z -> x:z)
 {-# INLINE singleton #-}
 
 toList :: DList a -> [a]
@@ -59,3 +60,39 @@ main = defaultMain
     [ bench "concat list" $ whnf schlemiel 123456
     , bench "concat dlist" $ whnf constructDlist 123456
     ]
+
+
+data Error
+    = Err1 String
+    | Err2 String
+    deriving (Show, Eq)
+
+data Thing = Thing
+    { field1 :: Int
+    , field2 :: String
+    } deriving (Eq, Show)
+
+doEither :: Int -> String -> Either Error Thing
+doEither x y = do
+    f1 <- validate1 x
+    f2 <- validate2 y
+    return $ Thing f1 f2
+
+dofmapEither :: Int -> String -> Either Error Thing
+dofmapEither x y = Thing <$> validate1 x <*> validate2 y
+
+doManual :: Int -> String -> Either Error Thing
+doManual x y =
+    case validate1 x of
+        Left err -> Left err
+        Right x' -> case validate2 y of
+                        Left err' -> Left err'
+                        Right y'  -> Right $ Thing x' y'
+
+validate1 :: Int -> Either Error Int
+validate1 = undefined
+
+validate2 :: String -> Either Error String
+validate2 = undefined
+
+
