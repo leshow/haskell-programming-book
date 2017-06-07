@@ -1,8 +1,9 @@
 module Main where
 
 import           Criterion.Main
+import           Data.Sequence       ((<|))
+import qualified Data.Sequence       as S
 import           Text.Show.Functions ()
-
 -- struct DList<A> {
 --      unDL : fn(&[A]) -> &[A]
 -- }
@@ -59,8 +60,38 @@ main :: IO ()
 main = defaultMain
     [ bench "concat list" $ whnf schlemiel 123456
     , bench "concat dlist" $ whnf constructDlist 123456
+    , bench "push our queue" $ whnf constructQueue 123456
+    , bench "push sequence queue" $ whnf newSeq 123456
     ]
 
+newSeq :: Int -> S.Seq Int
+newSeq i = go i S.empty
+    where go 0 xs = xs
+          go n xs = go (n-1) (n <| xs)
+
+constructQueue :: Int -> Queue Int
+constructQueue i = go i (Queue [] [])
+    where go 0 xs = xs
+          go n xs = go (n-1) (push n xs)
+
+data Queue a = Queue
+    { enqueue :: [a]
+    , dequeue :: [a]
+    } deriving (Eq, Show)
+
+class Queueable q where
+    new :: q a
+    push :: a -> q a -> q a
+    pop :: q a -> Maybe (a, q a)
+
+instance Queueable Queue where
+    new = Queue [] []
+
+    push a (Queue e d) = Queue (a:e) d
+
+    pop (Queue [] [])    = Nothing
+    pop (Queue e [])     = pop (Queue e (reverse e))
+    pop (Queue e (d:ds)) = Just (d, Queue e ds)
 
 data Error
     = Err1 String
