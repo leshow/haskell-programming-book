@@ -1,7 +1,6 @@
 module Main where
 
 import           Criterion.Main
-import           Data.Sequence       ((<|))
 import qualified Data.Sequence       as S
 import           Text.Show.Functions ()
 -- struct DList<A> {
@@ -67,7 +66,7 @@ main = defaultMain
 newSeq :: Int -> S.Seq Int
 newSeq i = go i S.empty
     where go 0 xs = xs
-          go n xs = go (n-1) (n <| xs)
+          go n xs = go (n-1) (n S.<| xs)
 
 constructQueue :: Int -> Queue Int
 constructQueue i = go i (Queue [] [])
