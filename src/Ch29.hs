@@ -30,23 +30,26 @@
 
 module Main where
 
-import           Control.Concurrent (MVar, forkIO, newEmptyMVar, putMVar,
-                                     takeMVar, threadDelay)
-import           Control.Monad      (replicateM)
-import           System.Random      (randomRIO)
+import           Control.Applicative (liftA2)
+import           Control.Concurrent  (MVar, forkIO, newEmptyMVar, putMVar,
+                                      takeMVar, threadDelay)
+import           Control.Monad       (replicateM)
+import           System.Random       (randomIO, randomRIO)
 
 main :: IO ()
 main = do
     mv <- newEmptyMVar
-    putMVar mv (0 :: Int)
+    putMVar mv 0
     forkIO (forked mv)
     threadDelay 1000
     a <- takeMVar mv
     print a
     a' <- takeMVar mv
     print a'
+    liftA2 (++) getLine getLine -- use applicative IO instance
+    pure ()
 
-forked :: Num a => MVar a -> IO ()
+forked :: (Show a, Num a) => MVar a -> IO ()
 forked mv = do
     a <- takeMVar mv
     putMVar mv (a+1)
