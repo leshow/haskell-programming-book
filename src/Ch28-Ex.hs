@@ -125,4 +125,3 @@ validate1 = undefined
 validate2 :: String -> Either Error String
 validate2 = undefined
 
-
