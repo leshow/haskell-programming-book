@@ -98,7 +98,7 @@ aiRoll rounds =
             roundMap = foldr (\a acc -> M.insertWith (+) (fromEnum a) 1 acc) M.empty rs
         in
             do
-                print (M.toList roundMap)
+                print $ M.toList roundMap
                 newRand
 
 
