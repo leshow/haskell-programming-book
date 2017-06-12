@@ -1,4 +1,3 @@
-{-# LANGUAGE DeriveFunctor #-}
 
 module Main where
 
@@ -8,16 +7,34 @@ import           System.Environment (getArgs)
 import           System.Exit
 import           System.IO
 
+data Action
+    = Encrypt
+    | Decrypt
+    deriving (Show, Eq)
+
+data Vigenere = Vigenere
+    { path   :: FilePath
+    , mode   :: IOMode
+    , action :: Action
+    } deriving (Show, Eq)
+
+
+vEnc :: FilePath -> Vigenere
+vEnc f = Vigenere { path = f, mode = ReadWriteMode, action = Encrypt  }
+
+vDec :: FilePath -> Vigenere
+vDec f = Vigenere { path = f, mode = ReadWriteMode, action = Decrypt }
+
 main :: IO ()
 main = do
     args <- getArgs
     action <- parse args
-
+    handle <- openFile (path action) (mode action)
     pure ()
 
-parse :: [String] -> IO (Action Vigenere)
-parse ["-e", file] = pure (Encrypt $ vEnc file)
-parse ["-d", file] = pure (Decrypt $ vDec file)
+parse :: [String] -> IO Vigenere
+parse ["-e", file] = pure $ vEnc file
+parse ["-d", file] = pure $ vDec file
 parse _            = showUsage >> failExit
 
 showUsage :: IO ()
@@ -29,18 +46,4 @@ exit = exitSuccess
 failExit :: IO a
 failExit = exitWith (ExitFailure 1)
 
-vEnc :: FilePath -> Vigenere
-vEnc f = Vigenere { path = f, mode = ReadWriteMode }
 
-vDec :: FilePath -> Vigenere
-vDec f = Vigenere { path = f, mode = ReadWriteMode }
-
-data Action a
-    = Encrypt a
-    | Decrypt a
-    deriving (Show, Eq, Functor)
-
-data Vigenere = Vigenere
-    { path :: FilePath
-    , mode :: IOMode
-    } deriving (Show, Eq)
