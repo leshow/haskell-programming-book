@@ -1,8 +1,8 @@
 module Ciphers where
 
-import           Control.Monad (forever)
+import           Control.Monad  (forever)
 import           Data.Char
-import           System.Exit   (exitSuccess)
+import           System.Exit    (exitSuccess)
 
 caesar :: Int -> String -> String
 caesar shift = map (shiftChar (+) shift)
