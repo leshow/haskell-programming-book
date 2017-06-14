@@ -1,6 +1,7 @@
+{-# LANGUAGE ExplicitForAll  #-}
+{-# LANGUAGE NamedFieldPuns  #-}
 {-# LANGUAGE RecordWildCards #-}
-{-# LANGUAGE NamedFieldPuns #-}
-{-# LANGUAGE ExplicitForAll #-}
+
 
 module Main where
 

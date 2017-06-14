@@ -1,11 +1,11 @@
 {-# LANGUAGE ExistentialQuantification #-}
-{-# LANGUAGE GADTs #-}
-{-# LANGUAGE MultiWayIf #-}
+{-# LANGUAGE GADTs                     #-}
+{-# LANGUAGE MultiWayIf                #-}
 
 module Ch30 where
 
-import Control.Exception (ArithException(..), AsyncException(..))
-import Data.Typeable
+import           Control.Exception (ArithException (..), AsyncException (..))
+import           Data.Typeable
 
 data MyException = forall e. (Show e, Typeable e) => MyException e
 
