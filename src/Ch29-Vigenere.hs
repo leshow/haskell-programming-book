@@ -1,14 +1,11 @@
 {-# LANGUAGE RecordWildCards #-}
-{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE ExplicitForAll #-}
-{-# LANGUAGE ExistentialQuantification #-}
 
 module Main where
 
 import           Ciphers            (unvigenere, vigenere)
 import           System.Environment (getArgs)
-import qualified Data.ByteString as BS
 import           System.Exit
 import           System.IO
 
@@ -24,37 +21,36 @@ data Vigenere = Vigenere
 
 main :: IO ()
 main = do
-    args <- getArgs :: IO [String]
-    Vigenere{..} <- parse args
+    args <- getArgs 
+    v <- parse args
+    hasInput <- hWaitForInput stdin 15000 
+    if hasInput 
+        then do
+            input <- getContents
+            handleAction v input
+        else hPutStrLn stderr "Timeout. (15s)"
+
+handleAction :: Vigenere -> String -> IO ()
+handleAction Vigenere{..} input =
     case actionType of
         Encrypt -> do
-            input <- hGetContents stdin 
-            timeUp stdin $ do 
-                putStrLn "-------------"
-                putStrLn "ENCRYPTED CONTENTS: "
-                print $ vigenere key input
-        Decrypt -> do
-            input <- hGetContents stdin
-            timeUp stdin $ do 
-                putStrLn "-------------"
-                putStrLn "DECRYPTED CONTENTS:"
-                print $ unvigenere key input
-    pure ()
-
-timeUp :: Handle -> IO () -> IO ()
-timeUp h x = do 
-    bool <- hWaitForInput h 15
-    if bool == True then x else putStrLn "Timeout. (15s)"
+            putStrLn "-------------"
+            putStrLn "ENCRYPTED CONTENTS: "
+            print $ vigenere key input
+        Decrypt -> do 
+            putStrLn "-------------"
+            putStrLn "DECRYPTED CONTENTS:"
+            print $ unvigenere key input
 
 parse :: [String] -> IO Vigenere
-parse ["-e", "-k", key] = print key >> pure Vigenere { key, actionType = Encrypt }
-parse ["-ek", key] = print key >> pure Vigenere { key, actionType = Encrypt }
-parse ["-d", "-k", key] = print key >> pure Vigenere { key, actionType = Decrypt }
-parse ["-dk", key] = print key >> pure Vigenere { key, actionType = Decrypt }
-parse _            = showUsage >> failExit
+parse ["-e", "-k", key] = pure Vigenere { key, actionType = Encrypt }
+parse ["-ek", key]      = pure Vigenere { key, actionType = Encrypt }
+parse ["-d", "-k", key] = pure Vigenere { key, actionType = Decrypt }
+parse ["-dk", key]      = pure Vigenere { key, actionType = Decrypt }
+parse _                 = showUsage >> failExit
 
 showUsage :: IO ()
-showUsage = putStrLn "Usage: foo [-ed] file [-k] stringkey"
+showUsage = putStrLn "Usage: foo [-e/d] [-k] \"stringkey\""
 
 exit :: IO a
 exit = exitSuccess
