@@ -14,7 +14,20 @@ cabal-version:       >=1.10
 extra-source-files:  README.md
 
 executable fingerd
+  ghc-options:         -Wall
   hs-source-dirs:      src
   main-is:             Main.hs
   default-language:    Haskell2010
   build-depends:       base >= 4.7 && < 5
+                     , bytestring
+                     , raw-strings-qq
+                     , sqlite-simple
+                     , text
+
+executable debug
+  ghc-options:         -Wall
+  hs-source-dir:       src
+  main-is:             Debug.hs
+  default-language:    Haskell2010
+  build-depends:       base >= 4.7 && < 5
+                     , network
