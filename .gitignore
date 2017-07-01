@@ -4,3 +4,4 @@ foo
 src/*.o
 src/*.hi
 foo.*
+**/.stack-work/*
