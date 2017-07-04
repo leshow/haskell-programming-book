@@ -20,7 +20,7 @@ main = do -- withSocketsDo $ do
     addrinfos <- getAddrInfo
                 (Just (defaultHints
                         { addrFlags = [AI_PASSIVE] }))
-                Nothing (Just "79")
+                Nothing (Just "12345") -- 79 is the real port, only available when run as root
     let serveraddr = head addrinfos
     sock <- socket (addrFamily serveraddr)
                 Stream defaultProtocol
