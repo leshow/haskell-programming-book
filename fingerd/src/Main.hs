@@ -27,7 +27,6 @@ data User = User
     , phone         :: Text
     } deriving (Eq, Show)
 
-
 instance FromRow User where
     fromRow = User <$> field
                 <*> field
@@ -39,6 +38,24 @@ instance FromRow User where
 instance ToRow User where
     toRow (User id_ username shell homeDir realName phone) =
         toRow (id_, username, shell, homeDir, realName, phone)
+
+createUsers :: Query
+createUsers = [r|
+    CREATE TABLE IF NOT EXISTS users
+        (id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE,
+        shell TEXT, homeDirectory TEXT,
+        realName TEXT, phone TEXT)
+|]
+
+allUsers :: Query
+allUsers = "SELECT * FROM USERS"
+
+byUsername :: Query
+byUsername = "SELECT * FROM USERS WHERE username = ?"
+
+insertUser :: Query
+insertUser = "INSERT INTO users VALUES (?, ?, ?, ?, ?, ?)"
 
 main :: IO ()
 main = do
