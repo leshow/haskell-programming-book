@@ -18,7 +18,6 @@ import           Network.Socket               hiding (close, recv)
 import           Network.Socket.ByteString    (recv, sendAll)
 import           Text.RawString.QQ
 
-
 data User = User
     { userId        :: Integer
     , username      :: Text
