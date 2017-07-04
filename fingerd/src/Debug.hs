@@ -1,14 +1,14 @@
 module Main where
 
 import           Control.Monad             (forever)
-import           Network.Socket            hiding (recv)
+import           Network.Socket            hiding (recv, recvFrom, send, sendTo)
 import           Network.Socket.ByteString (recv, sendAll)
 
 logAndEcho :: Socket -> IO ()
-logAndEcho socket = forever $ do
-    (soc, _) <- accept socket
-    printAndKickback soc
-    sClose soc
+logAndEcho sock = forever $ do
+    (s, _) <- accept sock
+    printAndKickback s
+    close s
     where
         printAndKickback conn = do
             msg <- recv conn 1024
@@ -16,7 +16,7 @@ logAndEcho socket = forever $ do
             sendAll conn msg
 
 main :: IO ()
-main = withSocketsDo $ do
+main = do -- withSocketsDo $ do
     addrinfos <- getAddrInfo
                 (Just (defaultHints
                         { addrFlags = [AI_PASSIVE] }))
@@ -24,7 +24,7 @@ main = withSocketsDo $ do
     let serveraddr = head addrinfos
     sock <- socket (addrFamily serveraddr)
                 Stream defaultProtocol
-    bindSocket sock (addrAddress serveraddr)
+    bind sock (addrAddress serveraddr)
     listen sock 1
     logAndEcho sock
-    sClose sock
+    close sock
