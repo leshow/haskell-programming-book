@@ -12,7 +12,7 @@ import           Data.Text                    (Text)
 import qualified Data.Text                    as Text
 import           Data.Text.Encoding           (decodeUtf8, encodeUtf8)
 import           Data.Typeable
-import           Database.SQLite.Simple       hiding (close)
+import           Database.SQLite.Simple
 import           Database.SQLite.Simple.Types
 import           Network.Socket               hiding (close, recv)
 import           Network.Socket.ByteString    (recv, sendAll)
@@ -26,6 +26,12 @@ data User = User
     , realName      :: Text
     , phone         :: Text
     } deriving (Eq, Show)
+
+data DuplicateData = DuplicateData deriving (Eq, Show, Typeable)
+
+instance Exception DuplicateData
+
+type UserRow = (Null, Text, Text, Text, Text, Text)
 
 instance FromRow User where
     fromRow = User <$> field
@@ -55,7 +61,27 @@ byUsername :: Query
 byUsername = "SELECT * FROM USERS WHERE username = ?"
 
 insertUser :: Query
-insertUser = "INSERT INTO users VALUES (?, ?, ?, ?, ?, ?)"
+insertUser = "INSERT INTO users WHERE VALUES (?, ?, ?, ?, ?, ?)"
+
+getUser :: Connection -> Text -> IO (Maybe User)
+getUser conn name = do
+    res <- query conn byUsername (Only name)
+    case res of
+        []     -> pure Nothing
+        [user] -> pure $ Just user
+        _      -> throwIO DuplicateData
+
+createDatabase :: IO ()
+createDatabase = do
+    conn <- open "test.db"
+    execute_ conn createUsers
+    execute conn insertUser me
+    rows <- query_ conn allUsers
+    mapM_ print (rows :: [User])
+    Database.SQLite.Simple.close conn
+    where
+        me :: UserRow
+        me = (Null, "Evan", "/bin/zsh", "/home/leshow", "Evan Cameron", "555-5555")
 
 main :: IO ()
 main = do
