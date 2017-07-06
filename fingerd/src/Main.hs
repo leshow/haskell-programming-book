@@ -6,13 +6,16 @@ module Main where
 
 import           Control.Exception
 import           Control.Monad                (forever)
+import           Control.Monad.Reader
 import qualified Data.ByteString              as BS
+import           Data.Foldable
 import           Data.List                    (intersperse)
 import           Data.Text                    (Text)
 import qualified Data.Text                    as Text
 import           Data.Text.Encoding           (decodeUtf8, encodeUtf8)
 import           Data.Typeable
-import           Database.SQLite.Simple
+import           Database.SQLite.Simple       hiding (close)
+import qualified Database.SQLite.Simple       as SQL
 import           Database.SQLite.Simple.Types
 import           Network.Socket               hiding (close, recv)
 import           Network.Socket.ByteString    (recv, sendAll)
@@ -26,6 +29,18 @@ data User = User
     , realName      :: Text
     , phone         :: Text
     } deriving (Eq, Show)
+
+newtype Env = Env
+    { conn_ :: Connection }
+
+class HasConn env where
+    getConn :: env -> Connection
+
+instance HasConn Env where
+    getConn = conn_
+--    , log   :: LogLevel }
+
+-- data LogLevel = Info | Warn | Emergency deriving (Eq, Show)
 
 data DuplicateData = DuplicateData deriving (Eq, Show, Typeable)
 
@@ -73,12 +88,14 @@ getUser conn name = do
 
 createDatabase :: IO ()
 createDatabase = do
-    conn <- open "test.db"
-    execute_ conn createUsers
-    execute conn insertUser me
-    rows <- query_ conn allUsers
-    mapM_ print (rows :: [User])
-    Database.SQLite.Simple.close conn
+    conn <- open "finger.db"
+    let env = Env { conn_ = conn }
+
+    SQL.execute_ conn createUsers
+    SQL.execute conn insertUser me
+    rows <- SQL.query_ conn allUsers
+    traverse_ print (rows :: [User])
+    SQL.close conn
     where
         me :: UserRow
         me = (Null, "Evan", "/bin/zsh", "/home/leshow", "Evan Cameron", "555-5555")

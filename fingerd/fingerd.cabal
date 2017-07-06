@@ -24,6 +24,7 @@ executable fingerd
                      , raw-strings-qq
                      , sqlite-simple
                      , text
+                     , mtl
 
 executable debug
   ghc-options:         -Wall
