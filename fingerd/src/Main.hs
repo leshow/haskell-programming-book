@@ -10,6 +10,7 @@ import           Control.Monad.Reader
 import qualified Data.ByteString              as BS
 import           Data.Foldable
 import           Data.List                    (intersperse)
+import           Data.Monoid                  ((<>))
 import           Data.Text                    (Text)
 import qualified Data.Text                    as T
 import           Data.Text.Encoding           (decodeUtf8, encodeUtf8)
@@ -114,6 +115,16 @@ formatUser (User _ username shell homeDir realName _) = BS.concat [
     "Shell: ", enc shell, "\n"]
     where
         enc = encodeUtf8
+
+returnUser :: Connection -> Socket -> Text -> IO ()
+returnUser conn soc username = do
+    maybeUser <- getUser conn (T.strip username)
+    case maybeUser of
+        Nothing -> do
+            putStrLn $ "Couldn't find matching user for username: " <> show username
+            pure ()
+        Just user -> sendAll soc (formatUser user)
+
 
 main :: IO ()
 main = do
