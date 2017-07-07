@@ -90,7 +90,6 @@ getUser conn name = do
 createDatabase :: IO ()
 createDatabase = do
     conn <- open "finger.db"
-    -- let env = Env { conn_ = conn }
     SQL.execute_ conn createUsers
     SQL.execute conn insertUser me
     rows <- SQL.query_ conn allUsers
@@ -125,6 +124,14 @@ returnUser conn soc username = do
             pure ()
         Just user -> sendAll soc (formatUser user)
 
+
+
+handleQuery :: Connection -> Socket -> IO ()
+handleQuery conn soc = do
+    msg <- recv soc 2014
+    case msg of
+        "\r\n" -> returnUsers conn soc
+        name   -> returnUser conn soc (decodeUtf8 name)
 
 main :: IO ()
 main = do
