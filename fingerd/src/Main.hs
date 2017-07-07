@@ -11,7 +11,7 @@ import qualified Data.ByteString              as BS
 import           Data.Foldable
 import           Data.List                    (intersperse)
 import           Data.Text                    (Text)
-import qualified Data.Text                    as Text
+import qualified Data.Text                    as T
 import           Data.Text.Encoding           (decodeUtf8, encodeUtf8)
 import           Data.Typeable
 import           Database.SQLite.Simple       hiding (close)
@@ -70,10 +70,10 @@ createUsers = [r|
 |]
 
 allUsers :: Query
-allUsers = "SELECT * FROM USERS"
+allUsers = "SELECT * FROM users"
 
 byUsername :: Query
-byUsername = "SELECT * FROM USERS WHERE username = ?"
+byUsername = "SELECT * FROM users WHERE username = ?"
 
 insertUser :: Query
 insertUser = "INSERT INTO users VALUES (?, ?, ?, ?, ?, ?)"
@@ -89,8 +89,7 @@ getUser conn name = do
 createDatabase :: IO ()
 createDatabase = do
     conn <- open "finger.db"
-    let env = Env { conn_ = conn }
-
+    -- let env = Env { conn_ = conn }
     SQL.execute_ conn createUsers
     SQL.execute conn insertUser me
     rows <- SQL.query_ conn allUsers
@@ -99,6 +98,22 @@ createDatabase = do
     where
         me :: UserRow
         me = (Null, "Evan", "/bin/zsh", "/home/leshow", "Evan Cameron", "555-5555")
+
+returnUsers :: Connection -> Socket -> IO ()
+returnUsers conn soc = do
+    userRows <- SQL.query_ conn allUsers
+    let usernames = username <$> userRows
+        bsUsers = foldr (\a acc -> T.concat [acc, a, "\n"]) "" usernames
+    sendAll soc (encodeUtf8 bsUsers)
+
+formatUser :: User -> BS.ByteString
+formatUser (User _ username shell homeDir realName _) = BS.concat [
+    "Login: ", enc username, "\t\t\t\t",
+    "Name: ", enc realName, "\n",
+    "Directory: ", enc homeDir, "\t\t\t\t",
+    "Shell: ", enc shell, "\n"]
+    where
+        enc = encodeUtf8
 
 main :: IO ()
 main = do
