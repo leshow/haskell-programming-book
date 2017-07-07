@@ -57,8 +57,8 @@ instance FromRow User where
                 <*> field
 
 instance ToRow User where
-    toRow (User id_ username shell homeDir realName phone) =
-        toRow (id_, username, shell, homeDir, realName, phone)
+    toRow (User id_ username shell homeDirectory realName phone) =
+        toRow (id_, username, shell, homeDirectory, realName, phone)
 
 createUsers :: Query
 createUsers = [r|
@@ -76,7 +76,7 @@ byUsername :: Query
 byUsername = "SELECT * FROM USERS WHERE username = ?"
 
 insertUser :: Query
-insertUser = "INSERT INTO users WHERE VALUES (?, ?, ?, ?, ?, ?)"
+insertUser = "INSERT INTO users VALUES (?, ?, ?, ?, ?, ?)"
 
 getUser :: Connection -> Text -> IO (Maybe User)
 getUser conn name = do
