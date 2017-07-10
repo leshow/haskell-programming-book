@@ -9,7 +9,6 @@ import           Control.Monad                (forever)
 import           Control.Monad.Reader
 import qualified Data.ByteString              as BS
 import           Data.Foldable
-import           Data.List                    (intersperse)
 import           Data.Monoid                  ((<>))
 import           Data.Text                    (Text)
 import qualified Data.Text                    as T
@@ -18,7 +17,7 @@ import           Data.Typeable
 import           Database.SQLite.Simple       hiding (close)
 import qualified Database.SQLite.Simple       as SQL
 import           Database.SQLite.Simple.Types
-import           Network.Socket               hiding (close, recv)
+import qualified Network.Socket               as NS
 import           Network.Socket.ByteString    (recv, sendAll)
 import           Text.RawString.QQ
 
@@ -30,6 +29,9 @@ data User = User
     , realName      :: Text
     , phone         :: Text
     } deriving (Eq, Show)
+
+port :: String
+port = "79"
 
 newtype Env = Env
     { conn_ :: Connection }
@@ -99,10 +101,10 @@ createDatabase = do
         me :: UserRow
         me = (Null, "Evan", "/bin/zsh", "/home/leshow", "Evan Cameron", "555-5555")
 
-returnUsers :: Connection -> Socket -> IO ()
+returnUsers :: Connection -> NS.Socket -> IO ()
 returnUsers conn soc = do
     userRows <- SQL.query_ conn allUsers
-    let usernames = username <$> userRows
+    let usernames = fmap username userRows
         bsUsers = foldr (\a acc -> T.concat [acc, a, "\n"]) "" usernames
     sendAll soc (encodeUtf8 bsUsers)
 
@@ -115,7 +117,7 @@ formatUser (User _ username shell homeDir realName _) = BS.concat [
     where
         enc = encodeUtf8
 
-returnUser :: Connection -> Socket -> Text -> IO ()
+returnUser :: Connection -> NS.Socket -> Text -> IO ()
 returnUser conn soc username = do
     maybeUser <- getUser conn (T.strip username)
     case maybeUser of
@@ -126,13 +128,28 @@ returnUser conn soc username = do
 
 
 
-handleQuery :: Connection -> Socket -> IO ()
+handleQuery :: Connection -> NS.Socket -> IO ()
 handleQuery conn soc = do
     msg <- recv soc 2014
     case msg of
         "\r\n" -> returnUsers conn soc
         name   -> returnUser conn soc (decodeUtf8 name)
 
+handleQueries :: Connection -> NS.Socket -> IO ()
+handleQueries conn sock = forever $ do
+    (soc, _) <- NS.accept sock
+    putStrLn "Got connection, handling query"
+    handleQuery conn soc
+    NS.close soc
+
 main :: IO ()
-main = do
-  putStrLn "hello world"
+main = NS.withSocketsDo $ do
+    addrinfo <- NS.getAddrInfo (Just (NS.defaultHints {NS.addrFlags = [NS.AI_PASSIVE]})) Nothing (Just port)
+    let serveraddr = head addrinfo
+    sock <- NS.socket (NS.addrFamily serveraddr) NS.Stream NS.defaultProtocol
+    NS.bind sock (NS.addrAddress serveraddr)
+    NS.listen sock 1
+    conn <- open "finger.db"
+    handleQueries conn sock
+    SQL.close conn
+    NS.close sock
