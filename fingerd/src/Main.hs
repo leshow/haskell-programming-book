@@ -8,17 +8,19 @@ import           Control.Exception
 import           Control.Monad                (forever)
 import           Control.Monad.Reader
 import qualified Data.ByteString              as BS
+import qualified Data.ByteString.Char8        as C
 import           Data.Foldable
 import           Data.Monoid                  ((<>))
 import           Data.Text                    (Text)
 import qualified Data.Text                    as T
-import           Data.Text.Encoding           (decodeUtf8, encodeUtf8)
+import           Data.Text.Encoding           (decodeUtf8', encodeUtf8)
 import           Data.Typeable
 import           Database.SQLite.Simple       hiding (close)
 import qualified Database.SQLite.Simple       as SQL
 import           Database.SQLite.Simple.Types
 import qualified Network.Socket               as NS
 import           Network.Socket.ByteString    (recv, sendAll)
+import           System.IO                    (stderr)
 import           Text.RawString.QQ
 
 data User = User
@@ -30,20 +32,29 @@ data User = User
     , phone         :: Text
     } deriving (Eq, Show)
 
-port :: String
-port = "79"
-
-newtype Env = Env
-    { conn_ :: Connection }
+data Env = Env
+    { fconn :: Connection
+    , fsock :: NS.Socket
+    , port  :: BS.ByteString
+    }
 
 class HasConn env where
     getConn :: env -> Connection
 
 instance HasConn Env where
-    getConn = conn_
---    , log   :: LogLevel }
+    getConn = fconn
 
--- data LogLevel = Info | Warn | Emergency deriving (Eq, Show)
+class HasFSock env where
+    getSock :: env -> NS.Socket
+
+instance HasFSock Env where
+    getSock = fsock
+
+class HasPort env where
+    getPort :: env -> BS.ByteString
+
+instance HasPort Env where
+    getPort = port
 
 data DuplicateData = DuplicateData deriving (Eq, Show, Typeable)
 
@@ -133,7 +144,11 @@ handleQuery conn soc = do
     msg <- recv soc 2014
     case msg of
         "\r\n" -> returnUsers conn soc
-        name   -> returnUser conn soc (decodeUtf8 name)
+        name   -> do
+            let res = decodeUtf8' name
+            case res of
+                Left err -> BS.hPutStr stderr $ C.pack ("Utf8 error: " ++ show err)
+                Right n  -> returnUser conn soc n
 
 handleQueries :: Connection -> NS.Socket -> IO ()
 handleQueries conn sock = forever $ do
@@ -144,7 +159,7 @@ handleQueries conn sock = forever $ do
 
 main :: IO ()
 main = NS.withSocketsDo $ do
-    addrinfo <- NS.getAddrInfo (Just (NS.defaultHints {NS.addrFlags = [NS.AI_PASSIVE]})) Nothing (Just port)
+    addrinfo <- NS.getAddrInfo (Just (NS.defaultHints {NS.addrFlags = [NS.AI_PASSIVE]})) Nothing (Just "7779")
     let serveraddr = head addrinfo
     sock <- NS.socket (NS.addrFamily serveraddr) NS.Stream NS.defaultProtocol
     NS.bind sock (NS.addrAddress serveraddr)
