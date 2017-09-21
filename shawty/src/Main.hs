@@ -56,7 +56,7 @@ randomElement xs = do
     randomDigit <- SR.randomRIO (0, maxIndex) :: IO Int
     return (xs !! randomDigit)
 
-shortyGen :: IO String -- [Char]
+shortyGen :: IO String
 shortyGen = replicateM 12 (randomElement alphaNum)
 
 saveURI :: R.Connection -> BC.ByteString -> BC.ByteString -> IO (Either R.Reply R.Status)
