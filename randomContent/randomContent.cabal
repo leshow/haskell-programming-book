@@ -1,7 +1,7 @@
 name:                randomContent
 version:             0.1.0.0
--- synopsis:
--- description:
+synopsis:            Playground
+description:         A place for my random tests and algorithms practice.
 homepage:            https://github.com/leshow/randomContent#readme
 license:             BSD3
 license-file:        LICENSE
