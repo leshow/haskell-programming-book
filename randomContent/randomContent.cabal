@@ -17,5 +17,7 @@ executable randomContent
   hs-source-dirs:      src
   main-is:             Main.hs
   default-language:    Haskell2010
+  ghc-options:         -O2 -rtsops
   build-depends:       base >= 4.7 && < 5
                      , bytestring
+                     , criterion

@@ -1,5 +1,6 @@
 module Main where
 
+import           BinaryStrings
+
 main :: IO ()
-main = do
-  putStrLn "hello world"
+main = bench
