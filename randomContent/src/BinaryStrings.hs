@@ -1,11 +1,11 @@
 {-# LANGUAGE BangPatterns #-}
 
-module BinaryStrings where
+module BinaryStrings (runBench) where
 
 
 import           Criterion.Main
 import qualified Data.ByteString       as BS
-import           Data.ByteString.Char8 (pack, singleton)
+import           Data.ByteString.Char8 (pack)
 import           Data.Word
 
 -- generate all binary strings from a given pattern
@@ -43,13 +43,35 @@ one :: Word8
 zero :: Word8
 !zero = 0x30
 
-bench = defaultMain [
+runBench :: IO ()
+runBench =
+    let -- we don't want to benchmark packing
+        !_one = pack "1?101010?010"
+        !_two = pack "1????01?1010"
+        !_three = pack "1??????????0"
+        !_four = pack "????????????"
+    in
+        defaultMain [
     bgroup "strings" [
-            bench "1??10"  $ whnf binaryStrings "1??10"
-            , bench "1????01?0"  $ whnf binaryStrings "1????01?0"
+            bench "1?101010?010"  $ nf binaryStrings "1?101010?010"
+            , bench "1????01?1010"  $ nf binaryStrings "1????01?1010"
+            , bench "1??????????0"  $ nf binaryStrings "1??????????0"
+            , bench "????????????"  $ nf binaryStrings "????????????"
             ],
         bgroup "bytestrings" [
-            bench "1??10" $ whnf binaryBS (pack "1??10")
-            , bench "1????01?0" $ whnf binaryBS (pack "1????01?0")
+            bench "1?101010?010" $ nf binaryBS _one
+            , bench "1????01?1010" $ nf binaryBS _two
+            , bench "1??????????0"  $ nf binaryBS _three
+            , bench "????????????"  $ nf binaryBS _four
             ]
     ]
+
+-- It appears to be that for small lists they perform about evenly
+-- However, the larger the list, the more the bytestring approach
+-- appears to be useful, even in the face of forcing strict evaluation
+-- on String.
+
+-- My guess is that since ByteStrings are vectors of Word8 elements
+-- their allocation is more expensive, and is paid upfront,
+-- therefore, you must make the string sufficiently long in order
+-- to offset the cost of allocation.

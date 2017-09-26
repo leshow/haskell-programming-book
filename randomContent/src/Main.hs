@@ -1,6 +1,6 @@
 module Main where
 
-import           BinaryStrings
+import           BinaryStrings (runBench)
 
 main :: IO ()
-main = bench
+main = runBench

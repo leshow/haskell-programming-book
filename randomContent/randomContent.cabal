@@ -15,9 +15,10 @@ extra-source-files:  README.md
 
 executable randomContent
   hs-source-dirs:      src
+  other-modules:       BinaryStrings
   main-is:             Main.hs
   default-language:    Haskell2010
-  ghc-options:         -O2 -rtsops
+  ghc-options:         -O2 -rtsopts
   build-depends:       base >= 4.7 && < 5
                      , bytestring
                      , criterion
