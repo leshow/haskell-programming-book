@@ -1,6 +1,6 @@
 {-# LANGUAGE BangPatterns #-}
 
-module BinaryStrings (runBench) where
+module BinaryStrings (runBench, binaryStrings, binaryBS) where
 
 
 import           Criterion.Main
