@@ -5,7 +5,8 @@ import           Control.Concurrent.Async       (async)
 import           Control.Concurrent.BoundedChan (BoundedChan, getChanContents,
                                                  newBoundedChan, readChan,
                                                  writeChan)
-import           Control.Monad                  (foldM_, forM_)
+import           Control.Monad                  (foldM_)
+import           Data.Foldable                  (for_)
 import           Data.Maybe                     (catMaybes, isJust)
 
 range :: BoundedChan (Maybe a) -> IO [a]
@@ -16,7 +17,7 @@ range chan = do
 fibonnacci :: Int -> BoundedChan (Maybe Int) -> IO ()
 fibonnacci n chan = do
     foldM_ iter (0, 1) [0..n] -- send fibs up to n
-    writeChan chan Nothing -- write done
+    writeChan chan Nothing  -- write done
     where
         iter :: (Int, Int) -> t -> IO (Int, Int)
         iter (x, y) _ = do
@@ -29,9 +30,11 @@ main = do
     ch <- newBoundedChan size
     async $ fibonnacci size ch
     ch' <- range ch
-    forM_ ch' print
+    for_ ch' print
     pure ()
 
+
+{- implemented as a regular list -}
 fibonacciByList :: Int -> [Int]
 fibonacciByList n = (fib !!) <$> [0..n]
     where
@@ -48,5 +51,5 @@ mainByList :: IO ()
 mainByList = do
     let size = 10
         fibs = fibonacciByList size
-    forM_ fibs print
+    for_ fibs print
     pure ()
