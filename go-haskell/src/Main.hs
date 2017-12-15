@@ -2,11 +2,11 @@ module Main where
 
 import           Control.Concurrent       (threadDelay)
 import           Control.Concurrent.Async (async)
-import           Control.Monad            (forM_)
+import           Data.Foldable            (for_)
 
 say :: String -> IO ()
-say s = forM_ [0..4] $ \i -> do
-    threadDelay $ 1000 * 10^3
+say s = for_ [0..4] $ \_ -> do
+    threadDelay 3000000
     putStrLn s
 
 main :: IO ()
