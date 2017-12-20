@@ -18,14 +18,14 @@ import           System.Random.MWC
 data Tree a
     = Nil
     | Node (Tree a) a (Tree a)
-    deriving (Show, Eq)
+    deriving (Show)
 
 {- walk a tree in ascending order-}
-walk :: forall a. Eq a => Tree a -> Chan (Maybe Int) -> IO ()
+walk :: forall a. (Eq a) => Tree a -> Chan (Maybe Int) -> IO ()
 walk = undefined
 
 -- check equivalence
-same :: forall a. Eq a => Tree a -> Tree a -> IO Bool
+same :: forall a. (Eq a) => Tree a -> Tree a -> IO Bool
 same t1 t2 = undefined
 
 main :: IO ()
@@ -40,14 +40,17 @@ instance Foldable Tree where
     foldMap _ Nil          = mempty
     foldMap f (Node l a r) = foldMap f l <> f a <> foldMap f r
 
---instance Eq Tree where
-
+instance Eq a => Eq (Tree a) where
+    (==) Nil Nil                     = True
+    (==) _ Nil                       = False
+    (==) Nil _                       = False
+    (==) (Node l a r) (Node l' b r') = a == b && (l == l') && (r == r')
 
 samePure :: forall a. Eq a => Tree a -> Tree a -> Bool
-samePure t1 t2 = walkPure t1 == walkPure t2
+samePure t1 t2 = t1 == t2
 
 
-shuffle :: (Ord a) => [Int] -> [a] -> [a]
+shuffle :: forall a. (Ord a) => [Int] -> [a] -> [a]
 shuffle rnds xs = map snd $ sort $ zip rnds xs
 
 insert :: forall a. a -> Tree a -> Tree a
