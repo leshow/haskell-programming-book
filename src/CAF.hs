@@ -1,7 +1,7 @@
 module Main where
 
 incdInts :: [Integer]
-incdInts = map (+1) [1..]
+incdInts = map (+ 1) [1 ..]
 
 main :: IO ()
 main = do
@@ -11,5 +11,3 @@ main = do
     print (incdInts !! 9001000)
     print (incdInts !! 9501000)
     print (incdInts !! 9901000)
-
-
