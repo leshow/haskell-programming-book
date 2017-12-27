@@ -65,8 +65,8 @@ main = do
 
 readAndPrint :: TQueue String -> IO ()
 readAndPrint out = forever $ do
-    s <- atomically (readTQueue out)
-    putStrLn s
+    msg <- atomically (readTQueue out)
+    putStrLn msg
 
 
 
