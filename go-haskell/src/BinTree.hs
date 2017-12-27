@@ -9,9 +9,8 @@ import           Control.Concurrent.Async (async)
 import           Control.Monad            (MonadPlus, mplus, mzero)
 import           Data.Foldable            (for_)
 import           Data.List                (sort)
-import           Data.Maybe               (catMaybes, isJust, isNothing)
+import           Data.Maybe               (isNothing)
 import           Data.Monoid              ((<>))
-import           Data.Traversable         (for, traverse)
 import qualified Data.Vector              as V
 import           System.Random.MWC
 

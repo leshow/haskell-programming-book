@@ -34,5 +34,66 @@ crawlNaive url depth f
             Error s -> putStrLn s
             Ok {..} -> do
                 putStrLn $ "found: " <> url <> " \"" <> body <> "\""
-                forM_ urls $ \url -> do
-                    crawlNaive url (depth - 1) f
+                forM_ urls $ \u -> crawlNaive u (depth - 1) f
+
+crawl :: Fetchable f => String -> Int -> f -> IO ()
+crawl url depth f
+    | depth == 0 = pure ()
+    | otherwise = undefined
+
+main :: IO ()
+main = do
+    c <- atomically newTQueue :: IO (TQueue String)
+    pure ()
+
+mainSerial :: IO ()
+mainSerial = crawlNaive "http://golang.org/" 4 fetcher
+
+
+data FakeResult = FakeResult {
+    fakeBody   :: String
+    , fakeUrls :: [String]
+    } deriving (Show)
+
+newtype FakeFetcher = FakeFetcher {
+        getMap :: Map String FakeResult
+    }
+
+instance Fetchable FakeFetcher where
+    fetch f url = case Map.lookup url (getMap f) of
+        Nothing                     -> pure $ Error ("Not found: " <> url)
+        Just (FakeResult body urls) -> pure $ Ok body urls
+
+fetcher :: FakeFetcher
+fetcher = FakeFetcher $ Map.fromList [
+        ( "http://golang.org/"
+        , FakeResult
+            "The Go Programming Language"
+            [ "http://golang.org/pkg/"
+            , "http://golang.org/cmd/"
+            ]
+        )
+        , ( "http://golang.org/pkg/"
+        , FakeResult
+            "Packages"
+            [ "http://golang.org/"
+            , "http://golang.org/cmd/"
+            , "http://golang.org/pkg/fmt/"
+            , "http://golang.org/pkg/os/"
+            ]
+        )
+        , ( "http://golang.org/pkg/fmt/"
+        , FakeResult
+            "Packages fmt"
+            [ "http://golang.org/"
+            , "http://golang.org/pkg/"
+            ]
+        )
+        , ( "http://golang.org/pkg/os/"
+        , FakeResult
+            "Packages os"
+            [ "http://golang.org/"
+            , "http://golang.org/pkg/"
+            ]
+        )
+    ]
