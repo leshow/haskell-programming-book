@@ -25,3 +25,4 @@ executable randomContent
                      , async
                      , wreq
                      , aeson 
+                     , vector
