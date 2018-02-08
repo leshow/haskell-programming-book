@@ -133,9 +133,9 @@ SS n %:+ m = SS (n %:+ m)
 
 infixl 7 %:*
 
--- (%:*) :: SNat n -> SNat m -> SNat (n %:* m)
--- SZ
-
+(%:*) :: SNat n -> SNat m -> SNat (n %:* m)
+SZ %:* m = SZ
+SS n %:* m = n %:* m %:+ m
 
 main :: IO ()
 main = putStrLn "nothing"
