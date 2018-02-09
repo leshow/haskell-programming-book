@@ -34,16 +34,16 @@ data List (n :: Nat) (a :: *) where
     Nil :: List 'Zero a
     Cons :: a -> List n a -> List ('Succ n) a
 
-deriving instance Eq a => Eq (Vector n a)
+deriving instance Eq a => Eq (List n a)
 
 instance Show a => Show (List n a) where
     show Nil         = "Nil"
     show (Cons a as) = "Cons" <> show a <> " (" <> show as <> ") "
 
-head :: Vector (Succ n) a -> a
+head :: List (Succ n) a -> a
 head (Cons x _) = x
 
-tail :: Vector (Succ n) a -> Vector n a
+tail :: List (Succ n) a -> List n a
 tail (Cons _ xs) = xs
 
 -- add
@@ -115,27 +115,3 @@ init (Cons x xs) = case xs of
 type family Map (f :: * -> *) (xs :: [*]) where
     Map f '[] = '[]
     Map f (x ': xs) = f x ': (Map f xs)
-
--- in order to pass a type-level nat as a function arg, we need something
--- that can pattern match on a type-level nat so we can write a recursive fn
--- This is a SINGLETON, it can be defined for any promoted data-types.
-
-
-data SNat n where
-    SZ :: SNat 'Zero
-    SS :: SNat n -> SNat ('Succ n)
-
-infixl 6 %:+
-
-(%:+) :: SNat n -> SNat m -> SNat (n %:+ m)
-SZ %:+ m = m
-SS n %:+ m = SS (n %:+ m)
-
-infixl 7 %:*
-
-(%:*) :: SNat n -> SNat m -> SNat (n %:* m)
-SZ %:* m = SZ
-SS n %:* m = n %:* m %:+ m
-
-main :: IO ()
-main = putStrLn "nothing"
