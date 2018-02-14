@@ -9,7 +9,7 @@
 module Main where
 
 import           Data.Monoid ((<>))
-import           Prelude     hiding (init, min, replicate, zipWith)
+import           Prelude     hiding (init, min, zipWith)
 
 merge :: Ord a => [a] -> [a] -> [a]
 merge [] ys = ys
