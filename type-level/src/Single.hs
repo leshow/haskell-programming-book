@@ -1,19 +1,22 @@
-{-# LANGUAGE DataKinds           #-}
-{-# LANGUAGE GADTs               #-}
-{-# LANGUAGE KindSignatures      #-}
-{-# LANGUAGE LambdaCase          #-}
-{-# LANGUAGE RankNTypes          #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE StandaloneDeriving #-}
-{-# LANGUAGE TemplateHaskell     #-}
-{-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE DataKinds            #-}
+{-# LANGUAGE GADTs                #-}
+{-# LANGUAGE KindSignatures       #-}
+{-# LANGUAGE LambdaCase           #-}
+{-# LANGUAGE RankNTypes           #-}
+{-# LANGUAGE ScopedTypeVariables  #-}
+{-# LANGUAGE StandaloneDeriving   #-}
+{-# LANGUAGE TemplateHaskell      #-}
+{-# LANGUAGE TypeFamilies         #-}
+{-# LANGUAGE TypeOperators        #-}
+{-# LANGUAGE PolyKinds            #-}
+{-# LANGUAGE TypeInType           #-}
 {-# LANGUAGE UndecidableInstances #-}
 
 module Single where
 
 import           Data.Singletons
 import           Data.Singletons.TH
+-- import GHC.Types
 import           Data.Kind
 import           Prelude hiding (replicate)
 
@@ -54,3 +57,17 @@ four = SS (SS (SS (SS SZ)))
 tryReplicate = do
     putStr "replicate (SS (SS (SS (SS SZ)))) 1 == "
     print $ replicate four 1 
+
+tail :: List a ('S n) -> List a n
+tail (_ :- xs) = xs
+
+head :: List a ('S n) -> a
+head (x :- _) = x
+
+lmap :: (a -> b) -> List a n -> List b n
+lmap _ Nil = Nil
+lmap f (x :- xs) = f x :- lmap f xs
+
+type family Map (f :: * -> *) (xs :: List Type n) :: List Type n where
+    Map f 'Nil = 'Nil
+    Map f (x ':- xs) = f x ':- (Map f xs)
