@@ -1,9 +1,3 @@
-{-# LANGUAGE DataKinds            #-}
-{-# LANGUAGE GADTs                #-}
-{-# LANGUAGE KindSignatures       #-}
-{-# LANGUAGE StandaloneDeriving   #-}
-{-# LANGUAGE TypeFamilies         #-}
-{-# LANGUAGE TypeOperators        #-}
 {-# LANGUAGE UndecidableInstances #-}
 
 module Main where
@@ -40,10 +34,10 @@ instance Show a => Show (List n a) where
     show Nil         = "Nil"
     show (Cons a as) = "Cons" <> show a <> " (" <> show as <> ") "
 
-head :: List (Succ n) a -> a
+head :: List ('Succ n) a -> a
 head (Cons x _) = x
 
-tail :: List (Succ n) a -> List n a
+tail :: List ('Succ n) a -> List n a
 tail (Cons _ xs) = xs
 
 -- add
@@ -115,3 +109,12 @@ init (Cons x xs) = case xs of
 type family Map (f :: * -> *) (xs :: [*]) where
     Map f '[] = '[]
     Map f (x ': xs) = f x ': (Map f xs)
+
+type family If (c :: Bool) (t :: *) (f :: *)
+type instance If 'True t f = t
+type instance If 'False t f = f
+
+main :: IO ()
+main = print "stuff"
+
+

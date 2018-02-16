@@ -1,12 +1,4 @@
-{-# LANGUAGE DataKinds            #-}
-{-# LANGUAGE GADTs                #-}
-{-# LANGUAGE KindSignatures       #-}
-{-# LANGUAGE LambdaCase           #-}
-{-# LANGUAGE RankNTypes           #-}
-{-# LANGUAGE ScopedTypeVariables  #-}
-{-# LANGUAGE StandaloneDeriving   #-}
 {-# LANGUAGE TemplateHaskell      #-}
-{-# LANGUAGE TypeFamilies         #-}
 {-# LANGUAGE TypeOperators        #-}
 {-# LANGUAGE PolyKinds            #-}
 {-# LANGUAGE TypeInType           #-}
@@ -68,6 +60,11 @@ lmap :: (a -> b) -> List a n -> List b n
 lmap _ Nil = Nil
 lmap f (x :- xs) = f x :- lmap f xs
 
-type family Map (f :: * -> *) (xs :: List Type n) :: List Type n where
+type family Map (f :: Type -> Type) (xs :: List Type n) :: List Type n where
     Map f 'Nil = 'Nil
     Map f (x ':- xs) = f x ':- (Map f xs)
+
+
+type family Range (n :: Nat) :: [Nat] where
+    Range 'Z = '[] 
+    Range ('S n) = n ': Range n 
