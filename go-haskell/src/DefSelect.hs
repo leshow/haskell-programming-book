@@ -1,11 +1,13 @@
+{-# LANGUAGE UnicodeSyntax #-}
+
 module DefSelect where
 
 import           Control.Concurrent       (threadDelay)
 import           Control.Concurrent.Async (async, cancel)
 import           Control.Concurrent.STM   (STM, TQueue, atomically, newTQueue,
                                            orElse, readTQueue, writeTQueue)
-import           Control.Monad            (forever, join, msum)
-
+import           Control.Monad            (forever, guard, join, msum)
+import           Data.Monoid              ((<>))
 
 select :: [STM a] -> IO a
 select = atomically . msum
@@ -44,3 +46,21 @@ main = do
                     threadDelay 50000
                     loop tick boom
                 ]
+
+
+fizzbuzz :: [String]
+fizzbuzz = do
+    x ← [1..100]
+    pure $ concat (fizz x <> buzz x <> num x)
+    where
+        fizz, buzz, num :: Int -> [String]
+        fizz n = "fizz" <$ guard (n `mod` 3 == 0)
+        buzz n = "buzz" <$ guard (n `mod` 5 == 0)
+        num n = show n <$ guard (null (fizz n) && null (buzz n))
+
+-- getGoodDogs :: [Person] -> [String]
+-- getGoodDogs people =
+--     [ name ++ " is a good dog."  -- all dogs are good
+--     | Person { personPets = pets } <- people
+--     , Pet { petName = Just name, petType = Dog } <- pets
+--     ]
