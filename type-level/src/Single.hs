@@ -6,7 +6,7 @@
 
 module Single where
 
-import           Data.Singletons
+-- import           Data.Singletons
 import           Data.Singletons.TH
 -- import GHC.Types
 import           Data.Kind
@@ -63,7 +63,6 @@ lmap f (x :- xs) = f x :- lmap f xs
 type family Map (f :: Type -> Type) (xs :: List Type n) :: List Type n where
     Map f 'Nil = 'Nil
     Map f (x ':- xs) = f x ':- (Map f xs)
-
 
 type family Range (n :: Nat) :: [Nat] where
     Range 'Z = '[] 

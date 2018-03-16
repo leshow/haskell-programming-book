@@ -86,3 +86,31 @@ instance (PEqual (S Z) (S Z) t) => LegalCompare t
 -- type level $
 class Apply f a r | f a -> r
 
+data Conj list
+
+instance Apply (Conj list) x (Cons x list)
+
+fmap' :: (a -> b) -> [a] -> [b]
+fmap' _ [] = []
+fmap' f (x:xs) = f x : fmap f xs
+
+class Map f xs ys | f xs -> ys
+instance Map f Nil Nil
+instance Map (Apply f x y,
+              Map f xs ys) => Map f (Cons x xs) (Cons y ys)
+
+-- Map f over list and concatenate results
+class MapCat f xs zs | f xs -> zs
+instance MapCat f Nil Nil
+instance (Map f xs chunks,
+          Append chunks ys) => Map f xs ys
+
+-- Filter a list w/ Concat predicate function
+-- class AppendIf pred x ys zs | pred x ys -> zs
+-- instance AppendIf
+
+class Filter f xs ys | f xs -> ys
+instance Filter f Nil Nil
+instance (Apply f x y, 
+          Filter f xs ys,
+          AppendIf pred x ys zs) => Filter f (Cons x xs) zs
