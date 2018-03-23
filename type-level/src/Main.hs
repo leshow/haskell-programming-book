@@ -4,6 +4,10 @@ module Main where
 
 import           Data.Monoid ((<>))
 import           Prelude     hiding (init, min, zipWith)
+import Data.IORef
+import Control.Monad (forM_, guard)
+import Data.Foldable 
+import Control.Exception
 
 merge :: Ord a => [a] -> [a] -> [a]
 merge [] ys = ys
@@ -108,7 +112,7 @@ init (Cons x xs) = case xs of
 
 type family Map (f :: * -> *) (xs :: [*]) where
     Map f '[] = '[]
-    Map f (x ': xs) = f x ': (Map f xs)
+    Map f (x ': xs) = f x ': Map f xs
 
 type family If (c :: Bool) (t :: *) (f :: *)
 type instance If 'True t f = t
@@ -117,4 +121,31 @@ type instance If 'False t f = f
 main :: IO ()
 main = print "stuff"
 
+testIORef :: IO ()
+testIORef = do 
+    ref <- newIORef (1 :: Int) 
+    forM_ [1..10] $ \x ->
+        modifyIORef ref (+x)
+    readIORef ref >>= print
 
+fizzbuzz :: Int -> String
+fizzbuzz n = 
+    concat (fizz <> num <> buzz)
+    where
+        fizz, buzz, num :: [String]
+        fizz = "fizz" <$ guard (n `mod` 3 == 0)
+        buzz = "buzz" <$ guard (n `mod` 5 == 0)
+        num = show n <$ guard (null fizz && null buzz)
+
+data Obj = forall e. Show e => Obj e
+
+instance Show Obj where
+    showsPrec p (Obj a) = showsPrec p a
+
+pack :: Show a => a -> Obj
+pack = Obj
+
+test :: IO ()
+test = print $ map f [pack 3, pack "hello", pack 'c']
+    where
+        f (Obj a) = show a
