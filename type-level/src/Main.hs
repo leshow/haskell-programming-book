@@ -2,12 +2,10 @@
 
 module Main where
 
-import           Data.Monoid ((<>))
-import           Prelude     hiding (init, min, zipWith)
-import Data.IORef
-import Control.Monad (forM_, guard)
-import Data.Foldable 
-import Control.Exception
+import           Data.Monoid    ((<>))
+import           Prelude        hiding (init, min, zipWith)
+import           Data.IORef
+import           Control.Monad  (forM_, guard)
 
 merge :: Ord a => [a] -> [a] -> [a]
 merge [] ys = ys
@@ -149,3 +147,24 @@ test :: IO ()
 test = print $ map f [pack 3, pack "hello", pack 'c']
     where
         f (Obj a) = show a
+
+-- soln1
+steps :: Int -> Int
+steps n
+    | n == 0    = 1
+    | n == 1    = 1
+    | n == 2    = 2
+    | otherwise = steps (n-3) + steps (n-2) + steps (n-1)
+
+--soln2
+steps_ = 1 : 1 : 2 : zipWith3 sumOf steps_ (Prelude.tail steps_) (Prelude.tail (Prelude.tail steps_))
+
+
+class SumRes r where 
+    sumOf :: Integer -> r
+
+instance SumRes Integer where
+    sumOf = id
+
+instance (Integral a, SumRes r) => SumRes (a -> r) where
+    sumOf x = sumOf . (x +) . toInteger

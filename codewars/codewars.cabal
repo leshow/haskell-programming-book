@@ -1,0 +1,53 @@
+name:                codewars
+version:             0.1.0.0
+homepage:            https://github.com/leshow/codewars#readme
+license:             BSD3
+license-file:        LICENSE
+author:              Evan Cameron
+maintainer:          cameron.evan@gmail.com
+copyright:           MIT
+category:            none
+build-type:          Simple
+cabal-version:       >=1.10
+extra-source-files:  README.md
+
+executable codewars
+  hs-source-dirs:      src
+  main-is:             Main.hs
+  other-modules:       DecodeMorse
+  default-language:    Haskell2010
+  ghc-options:         -O2 -threaded "-with-rtsopts=-N" -Wall -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints
+  extensions:          DeriveFoldable
+                     , DeriveFunctor
+                     , DeriveGeneric
+                     , DeriveTraversable
+                     , DeriveLift
+                     , GeneralizedNewtypeDeriving
+                     , OverloadedStrings
+                     , ExistentialQuantification
+                     , StandaloneDeriving
+                     , ScopedTypeVariables
+                     , UnicodeSyntax
+                     , ConstraintKinds
+                     , RankNTypes
+                     , TypeFamilies
+                     , DataKinds
+                     , KindSignatures
+                     , TypeOperators
+                     , GADTs
+                     , NamedFieldPuns
+                     , InstanceSigs
+                     , MultiParamTypeClasses
+                     , FunctionalDependencies
+                     , FlexibleInstances
+                     , BangPatterns
+                     , MultiWayIf
+                     , EmptyCase
+                     , LambdaCase
+  build-depends:       base >= 4.7 && < 5
+                     , containers
+                     , vector
+                     , text
+                     , aeson
+                     , mtl
+                     , split
