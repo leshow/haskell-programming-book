@@ -144,8 +144,9 @@ pack :: Show a => a -> Obj
 pack = Obj
 
 test :: IO ()
-test = print $ map f [pack 3, pack "hello", pack 'c']
+test = print $ map f [pack (3 :: Int), pack "hello", pack 'c']
     where
+        f :: Obj -> String
         f (Obj a) = show a
 
 -- soln1
@@ -157,9 +158,12 @@ steps n
     | otherwise = steps (n-3) + steps (n-2) + steps (n-1)
 
 --soln2
+steps_ :: [Integer]
 steps_ = 1 : 1 : 2 : zipWith3 sumOf steps_ (Prelude.tail steps_) (Prelude.tail (Prelude.tail steps_))
 
-
+-- variadic functions (can take n arguments)
+-- sumOf 1 2 3 4 5 :: Integer
+-- 15
 class SumRes r where 
     sumOf :: Integer -> r
 
@@ -168,3 +172,11 @@ instance SumRes Integer where
 
 instance (Integral a, SumRes r) => SumRes (a -> r) where
     sumOf x = sumOf . (x +) . toInteger
+
+-- natural transformation
+infixr 0 ~>
+type f ~> g = forall x. f x -> g x
+
+maybeHead :: [] ~> Maybe
+maybeHead [] = Nothing
+maybeHead (x:_) = Just x
