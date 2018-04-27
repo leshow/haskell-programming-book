@@ -6,6 +6,7 @@ import           Data.Monoid    ((<>))
 import           Prelude        hiding (init, min, zipWith)
 import           Data.IORef
 import           Control.Monad  (forM_, guard)
+import           Control.Applicative (liftA2)
 
 merge :: Ord a => [a] -> [a] -> [a]
 merge [] ys = ys
@@ -180,3 +181,42 @@ type f ~> g = forall x. f x -> g x
 maybeHead :: [] ~> Maybe
 maybeHead [] = Nothing
 maybeHead (x:_) = Just x
+
+qsort :: forall a. Ord a => [a] -> [a]
+qsort [] = []
+qsort (pivot:rest) = 
+    qsort [left | left <- rest, left < pivot]
+    <> [pivot]
+    <> qsort [right | right <- rest, right >= pivot]
+
+newtype Compose f g a = Compose { getCompose :: f (g a) }
+
+instance (Functor f, Functor g) => Functor (Compose f g) where
+    fmap f (Compose fga) = Compose $ (fmap . fmap) f fga
+
+instance (Applicative f, Applicative g) => Applicative (Compose f g) where
+    pure a = Compose $ (pure . pure) a -- pure :: a -> Compose f g 
+--    (<*>) :: Compose f g (a -> b) -> Compose f g a -> Compose f g b
+    Compose f <*> Compose a = Compose $ (<*>) <$> f <*> a
+
+instance (Foldable f, Foldable g) => Foldable (Compose f g) where
+    foldMap f (Compose fga) = (foldMap . foldMap) f fga
+
+instance (Traversable f, Traversable g) => Traversable (Compose f g) where
+    traverse f (Compose fga) = Compose <$> (traverse . traverse) f fga
+
+
+data Three a b = Three a a b
+
+instance Functor (Three a) where
+    fmap f (Three a a' b) = Three a a' (f b)
+
+instance Monoid a => Applicative (Three a) where
+    pure = Three mempty mempty
+    Three a a' f <*> Three d d' b = Three (a <> d) (a' <> d') (f b)
+
+instance Foldable (Three a) where
+    foldMap f (Three _ _ b) = f b
+
+instance Traversable (Three a) where
+    traverse f (Three a a' b) = Three a a' <$> f b

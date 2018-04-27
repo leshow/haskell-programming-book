@@ -218,7 +218,7 @@ instance Foldable (Three a b) where
     foldMap f (Three _ _ c) = f c
 
 instance Traversable (Three a b) where
-    traverse f (Three a b c) = (Three a b) <$> f c
+    traverse f (Three a b c) = Three a b <$> f c
 
 -- 5
 
