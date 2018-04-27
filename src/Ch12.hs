@@ -2,8 +2,8 @@
 
 module Ch12 where
 
-import Data.List
-import Data.Text as T (Text, intercalate, splitOn)
+import           Data.List
+import           Data.Text as T (Text, intercalate, splitOn)
 
 {-
     HKT are types that take types as arguments, like higher order functions.
@@ -27,10 +27,10 @@ makeJust = fmap Just [1, 2, 3]
 -}
 notThe :: String -> Maybe String
 notThe "the" = Nothing
-notThe a = Just a
+notThe a     = Just a
 
 getReplacement :: Maybe String -> String
-getReplacement Nothing = "a"
+getReplacement Nothing  = "a"
 getReplacement (Just a) = a
 
 replaceThe :: Text -> Text
@@ -97,7 +97,7 @@ data Nat
     deriving (Eq, Show)
 
 natToInteger :: Nat -> Integer
-natToInteger Zero = 0
+natToInteger Zero       = 0
 natToInteger (Succ nat) = 1 + natToInteger nat
 
 integerToNat :: Integer -> Maybe Nat
@@ -111,54 +111,54 @@ integerToNat n
 
 isJust :: Maybe a -> Bool
 isJust (Just _) = True
-isJust Nothing = False
+isJust Nothing  = False
 
 isNothing :: Maybe a -> Bool
 isNothing (Just _) = False
-isNothing Nothing = True
+isNothing Nothing  = True
 
 mayybee :: b -> (a -> b) -> Maybe a -> b
-mayybee b _ Nothing = b
+mayybee b _ Nothing  = b
 mayybee _ f (Just a) = f a
 
 fromMaybe :: a -> Maybe a -> a
-fromMaybe a Nothing = a
+fromMaybe a Nothing  = a
 fromMaybe _ (Just a) = a
 
 listToMaybe :: [a] -> Maybe a
-listToMaybe [a] = Just a
+listToMaybe [a]    = Just a
 listToMaybe (x:xs) = Just x
-listToMaybe [] = Nothing
+listToMaybe []     = Nothing
 
 maybeToList :: Maybe a -> [a]
 maybeToList (Just a) = [a]
-maybeToList Nothing = []
+maybeToList Nothing  = []
 
 catMaybes :: [Maybe a] -> [a]
-catMaybes [] = []
+catMaybes []           = []
 catMaybes (Nothing:xs) = catMaybes xs
-catMaybes (Just a:xs) = a : catMaybes xs
+catMaybes (Just a:xs)  = a : catMaybes xs
 
 catMaybes' :: [Maybe a] -> [a]
 catMaybes' = foldr ifJust []
   where
     ifJust x b =
         case x of
-            Just a -> a : b
+            Just a  -> a : b
             Nothing -> b
 
 flipMaybe :: [Maybe a] -> Maybe [a]
 flipMaybe = foldr allJust (Just [])
   where
-    allJust Nothing _ = Nothing
-    allJust _ Nothing = Nothing
+    allJust Nothing _         = Nothing
+    allJust _ Nothing         = Nothing
     allJust (Just a) (Just b) = Just $ a : b
 
 flipMaybe' :: [Maybe a] -> Maybe [a]
 flipMaybe' xs =
     case filter isNothing xs of
         [] -> Just $ catMaybes xs
-        _ -> Nothing
+        _  -> Nothing
 
 -- Either library
 lefts' :: [Either a b] -> [a]
@@ -166,7 +166,7 @@ lefts' = foldr isLeft []
   where
     isLeft x xs =
         case x of
-            Left a -> a : xs
+            Left a  -> a : xs
             Right b -> xs
 
 rights' :: [Either a b] -> [b]
@@ -174,18 +174,18 @@ rights' = foldr isRight []
   where
     isRight x xs =
         case x of
-            Left a -> xs
+            Left a  -> xs
             Right b -> b : xs
 
 partitionEithers' :: [Either a b] -> ([a], [b])
 partitionEithers' xs = (lefts' xs, rights' xs)
 
 either' :: (a -> c) -> (b -> c) -> Either a b -> c
-either' f _ (Left a) = f a
+either' f _ (Left a)  = f a
 either' _ g (Right b) = g b
 
 eitherMaybe' :: (b -> c) -> Either a b -> Maybe c
-eitherMaybe' _ (Left _) = Nothing
+eitherMaybe' _ (Left _)  = Nothing
 eitherMaybe' f (Right b) = Just $ f b
 
 -- an unfold is an anamorphism, a fold is a catamorphism
@@ -202,7 +202,7 @@ myUnfoldr :: (b -> Maybe (a, b)) -> b -> [a]
 myUnfoldr f b =
     case f b of
         Just (a, bb) -> a : myUnfoldr f bb
-        Nothing -> []
+        Nothing      -> []
 
 betterIterate :: (a -> a) -> a -> [a]
 betterIterate f = myUnfoldr (\b -> Just (b, f b))
@@ -218,7 +218,7 @@ unfold :: (a -> Maybe (a, b, a)) -> a -> BinaryTree b
 unfold f a =
     case f a of
         Just (x, y, z) -> Node (unfold f x) y (unfold f z)
-        Nothing -> Leaf
+        Nothing        -> Leaf
 
 treeBuild :: Integer -> BinaryTree Integer
 treeBuild n =
