@@ -1,5 +1,7 @@
 module Ex6_8 where
 
+import           Data.Function
+
 conc :: [[a]] -> [a]
 conc = foldr (++) []
 
@@ -34,3 +36,4 @@ msort :: Ord a => [a] -> [a]
 msort []  = []
 msort [x] = [x]
 msort xs  = let (s, e) = halve xs in merge_ (msort s) (msort e)
+
