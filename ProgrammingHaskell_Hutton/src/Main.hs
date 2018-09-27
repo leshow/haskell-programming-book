@@ -28,17 +28,17 @@ instance (Functor f, Functor g) => Functor (Compose f g) where
 data List a = Nil | Cons a (List a)
 
 instance Functor List where
-    fmap _ Nil = Nil
+    fmap _ Nil         = Nil
     fmap f (Cons a as) = Cons (f a) (fmap f as)
 
 instance Foldable List where
-    foldMap _ Nil = mempty
+    foldMap _ Nil         = mempty
     foldMap f (Cons a as) = f a <> foldMap f as
 
-    foldr _ b Nil = b
+    foldr _ b Nil         = b
     foldr f b (Cons a as) = f a (foldr f b as)
 
 instance Traversable List where
-    traverse _ Nil = pure Nil
+    traverse _ Nil         = pure Nil
     traverse f (Cons a as) = Cons <$> f a <*> traverse f as
 
