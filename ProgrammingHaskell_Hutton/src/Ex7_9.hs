@@ -3,6 +3,8 @@ module Ex7_9 where
 import           Data.Char
 import           Data.Foldable
 import           Control.Monad
+import           Debug.Trace
+import           Data.Function
 -- Exercises:
 
 -- [f x | x <- xs, p x]
@@ -10,7 +12,7 @@ filtmap :: (a -> b) -> (a -> Bool) -> [a] -> [b]
 filtmap f p = map f . filter p
 
 all_ :: (a -> Bool) -> [Bool] -> Bool -- ? I think they mean: (a -> Bool) -> [a] -> Bool
-all_ f xs = foldr (&&) True xs
+all_ _ xs = foldr (&&) True xs
 
 all' :: (a -> Bool) -> [a] -> Bool
 all' f = foldr (&&) True . fmap f
@@ -133,3 +135,30 @@ rmDupes (x : xs) =
         !fx = filter (/= x)
     in  x : fx ys
 
+{-
+A Narcissistic Number is a number of length n in which the sum of its digits to the power of n is equal to the original number. If this seems confusing, refer to the example below.
+
+Ex: 153, where n = 3 (number of digits in 153)
+13 + 53 + 33 = 153
+
+Write a method is_narcissistic :: Integer -> Bool
+-}
+isNarcissistic :: Integer -> Bool
+isNarcissistic n = total (len n) n == n
+  where
+    total :: Integer -> Integer -> Integer
+    total _      0  = 0
+    total !count !c = (c `mod` 10) ^ count + total count (c `div` 10)
+
+len :: Integer -> Integer
+len 0  = 0
+len !t = 1 + len (t `div` 10)
+
+same :: (Floating a, Integral a, Eq a) => [a] -> [a] -> [Bool]
+same x y = getSqrt x y
+  where
+    getSqrt x' y' = do
+        a <- x'
+        b <- y'
+        guard $ sqrt b == a
+        pure True
