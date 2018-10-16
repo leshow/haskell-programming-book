@@ -2,9 +2,12 @@ module Ex7_9 where
 
 import           Data.Char
 import           Data.Foldable
-import           Control.Monad
+import           Control.Monad                  ( guard
+                                                , join
+                                                )
 import           Debug.Trace
 import           Data.Function
+import           Data.Monoid                    ( (<>) )
 -- Exercises:
 
 -- [f x | x <- xs, p x]
@@ -155,7 +158,7 @@ len 0  = 0
 len !t = 1 + len (t `div` 10)
 
 same :: (Floating a, Integral a, Eq a) => [a] -> [a] -> [Bool]
-same x y = getSqrt x y
+same = getSqrt
   where
     getSqrt x' y' = do
         a <- x'

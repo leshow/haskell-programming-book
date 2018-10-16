@@ -2,8 +2,8 @@ module PracticeMTL where
 
 newtype StateT s m a = StateT { runStateT :: s -> m (a, s) }
 
-instance ∀ m s. Functor m => Functor (StateT s m) where
-    fmap :: ∀ a b. (a -> b) -> StateT s m a -> StateT s m b
+instance forall m s. Functor m => Functor (StateT s m) where
+    fmap :: forall a b. (a -> b) -> StateT s m a -> StateT s m b
     fmap f (StateT tupleS) = StateT $ \s ->
         let
             g (a', s') = (f a', s')
@@ -32,8 +32,8 @@ instance Monad Opt where
 
 newtype MaybeT m a = MaybeT { runMaybeT :: m (Maybe a) }
 
-instance ∀ m. Functor m => Functor (MaybeT m) where
-    fmap :: ∀ a b. (a -> b) -> MaybeT m a -> MaybeT m b
+instance forall m. Functor m => Functor (MaybeT m) where
+    fmap :: forall a b. (a -> b) -> MaybeT m a -> MaybeT m b
     fmap f (MaybeT mMaybea) = MaybeT $ (fmap . fmap) f mMaybea
 
 instance (Functor m, Monad m) => Applicative (MaybeT m) where
